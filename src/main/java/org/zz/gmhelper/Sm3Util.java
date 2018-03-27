@@ -1,11 +1,13 @@
 package org.zz.gmhelper;
 
 import org.bouncycastle.crypto.digests.SM3Digest;
+import org.bouncycastle.crypto.macs.HMac;
+import org.bouncycastle.crypto.params.KeyParameter;
 
 import java.util.Arrays;
 
 public class Sm3Util extends GmBaseUtil {
-  
+
   public static byte[] hash(byte[] srcData) {
     SM3Digest digest = new SM3Digest();
     digest.update(srcData, 0, srcData.length);
@@ -21,5 +23,16 @@ public class Sm3Util extends GmBaseUtil {
     } else {
       return false;
     }
+  }
+
+  public static byte[] hmac(byte[] key, byte[] srcData) {
+    KeyParameter keyParameter = new KeyParameter(key);
+    SM3Digest digest = new SM3Digest();
+    HMac mac = new HMac(digest);
+    mac.init(keyParameter);
+    mac.update(srcData, 0, srcData.length);
+    byte[] result = new byte[mac.getMacSize()];
+    mac.doFinal(result, 0);
+    return result;
   }
 }

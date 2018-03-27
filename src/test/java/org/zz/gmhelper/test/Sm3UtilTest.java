@@ -22,4 +22,17 @@ public class Sm3UtilTest extends GmBaseTest {
       Assert.assertTrue(false);
     }
   }
+
+  @Test
+  public void testHmacSm3() {
+    try {
+      byte[] hmacKey = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 };
+      byte[] hmac = Sm3Util.hmac(hmacKey, SRC_DATA);
+      System.out.println("SM3 hash result:\n" + Arrays.toString(hmac));
+      Assert.assertTrue(true);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+      Assert.assertTrue(false);
+    }
+  }
 }
