@@ -5,10 +5,7 @@ import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.CryptoException;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.bouncycastle.crypto.engines.SM2Engine;
-import org.bouncycastle.crypto.generators.ECKeyPairGenerator;
 import org.bouncycastle.crypto.params.ECDomainParameters;
-import org.bouncycastle.crypto.params.ECKeyGenerationParameters;
-import org.bouncycastle.crypto.params.ECKeyParameters;
 import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
 import org.bouncycastle.crypto.params.ECPublicKeyParameters;
 import org.bouncycastle.crypto.params.ParametersWithID;
@@ -42,9 +39,9 @@ public class Sm2Util extends GmBaseUtil {
   public static final ECCurve CURVE = new ECCurve.Fp(SM2_ECC_P, SM2_ECC_A, SM2_ECC_B);
   public static final ECPoint G_POINT = CURVE.createPoint(SM2_ECC_GX, SM2_ECC_GY);
   public static final ECDomainParameters DOMAIN_PARAMS = new ECDomainParameters(CURVE, G_POINT,
-      SM2_ECC_N);
+      SM2_ECC_N, BigInteger.ONE);
   //////////////////////////////////////////////////////////////////////////////////////
-  
+
   public static final int SM3_DIGEST_LENGTH = 32;
 
   /**
@@ -54,21 +51,9 @@ public class Sm2Util extends GmBaseUtil {
    */
   public static AsymmetricCipherKeyPair generateKeyPair() {
     SecureRandom random = new SecureRandom();
-    ECKeyGenerationParameters keyGenerationParams = new ECKeyGenerationParameters(DOMAIN_PARAMS,
-        random);
-    ECKeyPairGenerator keyGen = new ECKeyPairGenerator();
-    keyGen.init(keyGenerationParams);
-    return keyGen.generateKeyPair();
+    return BCECUtil.generateKeyPair(DOMAIN_PARAMS, random);
   }
 
-  public static int getCurveLength(ECKeyParameters ecKey) {
-    return getCurveLength(ecKey.getParameters());
-  }
-  
-  public static int getCurveLength(ECDomainParameters domainParams) {
-    return (domainParams.getCurve().getFieldSize() + 7) / 8;
-  }
-  
   /**
    * ECC公钥加密
    * 
@@ -112,7 +97,7 @@ public class Sm2Util extends GmBaseUtil {
    * @return
    */
   public static Sm2EncryptResult parseSm2CipherText(byte[] cipherText) {
-    int curveLength = getCurveLength(DOMAIN_PARAMS);
+    int curveLength = BCECUtil.getCurveLength(DOMAIN_PARAMS);
     return parseSm2CipherText(curveLength, SM3_DIGEST_LENGTH, cipherText);
   }
 
