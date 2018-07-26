@@ -1,11 +1,11 @@
 package org.zz.gmhelper;
 
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-
 import java.security.Security;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+
 public class GmBaseUtil {
-  static {
-    Security.addProvider(new BouncyCastleProvider());
-  }
+    static {
+        Security.addProvider(new BouncyCastleProvider());
+    }
 }
