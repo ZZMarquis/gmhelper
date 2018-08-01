@@ -5,7 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.StringReader;
+import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -27,6 +27,8 @@ import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ECParameterSpec;
+import org.bouncycastle.math.ec.ECCurve;
+import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.bouncycastle.util.io.pem.PemWriter;
@@ -56,6 +58,34 @@ public class BCECUtil {
 
     public static int getCurveLength(ECDomainParameters domainParams) {
         return (domainParams.getCurve().getFieldSize() + 7) / 8;
+    }
+
+    public static ECPrivateKeyParameters createEcPrivateKey(BigInteger d, ECDomainParameters domainParameters) {
+        return new ECPrivateKeyParameters(d, domainParameters);
+    }
+
+    public static ECPublicKeyParameters createEcPublicKey(BigInteger x, BigInteger y,
+                                                          ECCurve curve, ECDomainParameters domainParameters) {
+        byte[] xBytes = x.toByteArray();
+        byte[] yBytes = y.toByteArray();
+        return createEcPublicKey(xBytes, yBytes, curve, domainParameters);
+    }
+
+    public static ECPublicKeyParameters createEcPublicKey(String xHex, String yHex,
+                                                          ECCurve curve, ECDomainParameters domainParameters) {
+        byte[] xBytes = ByteUtils.fromHexString(xHex);
+        byte[] yBytes = ByteUtils.fromHexString(yHex);
+        return createEcPublicKey(xBytes, yBytes, curve, domainParameters);
+    }
+
+    public static ECPublicKeyParameters createEcPublicKey(byte[] xBytes, byte[] yBytes,
+                                                          ECCurve curve, ECDomainParameters domainParameters) {
+        final byte uncompressedFlag = 0x04;
+        byte[] encodedPubKey = new byte[1 + xBytes.length + yBytes.length];
+        encodedPubKey[0] = uncompressedFlag;
+        System.arraycopy(xBytes, 0, encodedPubKey, 1, xBytes.length);
+        System.arraycopy(yBytes, 0, encodedPubKey, 1 + xBytes.length, yBytes.length);
+        return new ECPublicKeyParameters(curve.decodePoint(encodedPubKey), domainParameters);
     }
 
     public static byte[] convertEcPriKeyToPkcs8Der(ECPrivateKeyParameters priKey,

@@ -122,7 +122,7 @@ public class Sm2Util extends GmBaseUtil {
 
     /**
      * ECC私钥签名
-     * 不指定withId，则默认withId为字节数组:{1,2,3,4,5,6,7,8,1,2,3,4,5,6,7, 8}
+     * 不指定withId，则默认withId为字节数组:"1234567812345678".getBytes()
      *
      * @param priKey  ECC私钥
      * @param srcData 源数据
@@ -140,7 +140,7 @@ public class Sm2Util extends GmBaseUtil {
      * ECC私钥签名
      *
      * @param priKey  ECC私钥
-     * @param withId  可以为null，若为null，则默认withId为字节数组:{1,2,3,4,5,6,7,8,1,2,3,4,5,6,7, 8}
+     * @param withId  可以为null，若为null，则默认withId为字节数组:"1234567812345678".getBytes()
      * @param srcData 源数据
      * @return 签名
      * @throws NoSuchAlgorithmException
@@ -164,7 +164,7 @@ public class Sm2Util extends GmBaseUtil {
 
     /**
      * ECC公钥验签
-     * 不指定withId，则默认withId为字节数组:{1,2,3,4,5,6,7,8,1,2,3,4,5,6,7, 8}
+     * 不指定withId，则默认withId为字节数组:"1234567812345678".getBytes()
      *
      * @param pubKey  ECC公钥
      * @param srcData 源数据
@@ -179,7 +179,7 @@ public class Sm2Util extends GmBaseUtil {
      * ECC公钥验签
      *
      * @param pubKey  ECC公钥
-     * @param withId  可以为null，若为null，则默认withId为字节数组:{1,2,3,4,5,6,7,8,1,2,3,4,5,6,7, 8}
+     * @param withId  可以为null，若为null，则默认withId为字节数组:"1234567812345678".getBytes()
      * @param srcData 源数据
      * @param sign    签名
      * @return 验签成功返回true，失败返回false
