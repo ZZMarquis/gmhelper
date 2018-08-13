@@ -108,7 +108,7 @@ public class BCECUtil {
     }
 
     public static byte[] convertPemToPkcs8DerEcPriKey(String pemString) throws IOException {
-        return convertPemToDerEcData(PEM_STRING_ECPRIVATEKEY, pemString);
+        return convertPemToDerEcData(pemString);
     }
 
     /**
@@ -144,7 +144,7 @@ public class BCECUtil {
     }
 
     public static byte[] convertPemToX509DerEcPubKey(String pemString) throws IOException {
-        return convertPemToDerEcData(PEM_STRING_PUBLIC, pemString);
+        return convertPemToDerEcData(pemString);
     }
 
     /**
@@ -182,7 +182,7 @@ public class BCECUtil {
         return new String(bOut.toByteArray());
     }
 
-    private static byte[] convertPemToDerEcData(String type, String pemString) throws IOException {
+    private static byte[] convertPemToDerEcData(String pemString) throws IOException {
         ByteArrayInputStream bIn = new ByteArrayInputStream(pemString.getBytes());
         PemReader pRdr = new PemReader(new InputStreamReader(bIn));
         try {
