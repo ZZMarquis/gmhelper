@@ -2,6 +2,7 @@ package org.zz.gmhelper.test;
 
 import java.util.Arrays;
 
+import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.zz.gmhelper.Sm3Util;
@@ -11,7 +12,7 @@ public class Sm3UtilTest extends GmBaseTest {
     public void testHashAndVerify() {
         try {
             byte[] hash = Sm3Util.hash(SRC_DATA);
-            System.out.println("SM3 hash result:\n" + Arrays.toString(hash));
+            System.out.println("SM3 hash result:\n" + ByteUtils.toHexString(hash));
             boolean flag = Sm3Util.verify(SRC_DATA, hash);
             if (!flag) {
                 Assert.assertTrue(false);

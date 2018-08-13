@@ -8,8 +8,6 @@ import java.util.Arrays;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
 import org.bouncycastle.crypto.params.ECPublicKeyParameters;
-import org.bouncycastle.jcajce.provider.asymmetric.util.ECUtil;
-import org.bouncycastle.jce.ECPointUtil;
 import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -70,7 +68,7 @@ public class Sm2UtilTest extends GmBaseTest {
             System.out.println("Pub Point Hex:"
                 + ByteUtils.toHexString(pubKey.getQ().getEncoded()).toUpperCase());
 
-            byte[] encryptedData = Sm2Util.encryt(pubKey, SRC_DATA);
+            byte[] encryptedData = Sm2Util.encrypt(pubKey, SRC_DATA);
             System.out.println("SM2 encrypt result:\n" + ByteUtils.toHexString(encryptedData));
             byte[] decryptedData = Sm2Util.decrypt(priKey, encryptedData);
             System.out.println("SM2 decrypt result:\n" + ByteUtils.toHexString(decryptedData));
