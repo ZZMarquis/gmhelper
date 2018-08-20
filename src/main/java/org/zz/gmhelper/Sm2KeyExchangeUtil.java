@@ -72,7 +72,7 @@ public class Sm2KeyExchangeUtil {
     /**
      *
      * @param s2
-     * @param confirmationTag 实际上是发起方的s1
+     * @param confirmationTag 实际上是发起方的s2
      * @return
      */
     public static boolean responderConfirm(byte[] s2, byte[] confirmationTag) {

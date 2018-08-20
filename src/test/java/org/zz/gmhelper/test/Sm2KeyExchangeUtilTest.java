@@ -71,13 +71,13 @@ public class Sm2KeyExchangeUtilTest {
                 responderStaticPriv, responderEphemeralPriv, RESPONDER_ID,
                 initiatorStaticPub, initiatorSEphemeralPub, INITIATOR_ID);
 
-            //第三步发起方生成密钥并验证响应方的验证消息
+            //第三步发起方生成密钥和验证消息，并验证响应方的验证消息
             Sm2KeyExchangeUtil.ExchangeResult initiatorResult = Sm2KeyExchangeUtil.calculateKeyWithConfirmation(
                 true, KEY_BITS, responderResult.getS1(),
                 initiatorStaticPriv, initiatorEphemeralPriv, INITIATOR_ID,
                 responderStaticPub, responderSEphemeralPub, RESPONDER_ID);
 
-            //第四部响应方验证发起方的验证消息
+            //第四步响应方验证发起方的验证消息
             if (!Sm2KeyExchangeUtil.responderConfirm(responderResult.getS2(), initiatorResult.getS2())) {
                 Assert.assertTrue(false);
             }
