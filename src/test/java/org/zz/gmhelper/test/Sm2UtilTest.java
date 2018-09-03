@@ -30,7 +30,7 @@ public class Sm2UtilTest extends GmBaseTest {
             System.out.println("Pub X Hex:"
                 + ByteUtils.toHexString(pubKey.getQ().getAffineYCoord().getEncoded()).toUpperCase());
             System.out.println("Pub Point Hex:"
-                + ByteUtils.toHexString(pubKey.getQ().getEncoded()).toUpperCase());
+                + ByteUtils.toHexString(pubKey.getQ().getEncoded(false)).toUpperCase());
 
             byte[] sign = Sm2Util.sign(priKey, WITH_ID, SRC_DATA);
             System.out.println("SM2 sign with withId result:\n" + ByteUtils.toHexString(sign));
@@ -66,7 +66,7 @@ public class Sm2UtilTest extends GmBaseTest {
             System.out.println("Pub X Hex:"
                 + ByteUtils.toHexString(pubKey.getQ().getAffineYCoord().getEncoded()).toUpperCase());
             System.out.println("Pub Point Hex:"
-                + ByteUtils.toHexString(pubKey.getQ().getEncoded()).toUpperCase());
+                + ByteUtils.toHexString(pubKey.getQ().getEncoded(false)).toUpperCase());
 
             byte[] encryptedData = Sm2Util.encrypt(pubKey, SRC_DATA);
             System.out.println("SM2 encrypt result:\n" + ByteUtils.toHexString(encryptedData));
@@ -169,7 +169,7 @@ public class Sm2UtilTest extends GmBaseTest {
             System.out.println("Pub X Hex:"
                 + ByteUtils.toHexString(pubKey.getQ().getAffineYCoord().getEncoded()).toUpperCase());
             System.out.println("Pub Point Hex:"
-                + ByteUtils.toHexString(pubKey.getQ().getEncoded()).toUpperCase());
+                + ByteUtils.toHexString(pubKey.getQ().getEncoded(false)).toUpperCase());
 
             Assert.assertTrue(true);
         } catch (Exception ex) {
