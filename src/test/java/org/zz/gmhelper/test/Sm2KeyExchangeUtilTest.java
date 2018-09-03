@@ -32,10 +32,10 @@ public class Sm2KeyExchangeUtilTest {
             ECPublicKeyParameters responderSEphemeralPub = (ECPublicKeyParameters) responderEphemeralKp.getPublic();
 
             //实际应用中应该是通过网络交换临时公钥
-            byte[] k1 = Sm2KeyExchangeUtil.caculateKey(true, KEY_BITS,
+            byte[] k1 = Sm2KeyExchangeUtil.calculateKey(true, KEY_BITS,
                 initiatorStaticPriv, initiatorEphemeralPriv, INITIATOR_ID,
                 responderStaticPub, responderSEphemeralPub, RESPONDER_ID);
-            byte[] k2 = Sm2KeyExchangeUtil.caculateKey(false, KEY_BITS,
+            byte[] k2 = Sm2KeyExchangeUtil.calculateKey(false, KEY_BITS,
                 responderStaticPriv, responderEphemeralPriv, RESPONDER_ID,
                 initiatorStaticPub, initiatorSEphemeralPub, INITIATOR_ID);
 

@@ -22,7 +22,7 @@ public class Sm2KeyExchangeUtil {
      * @param otherId 对方ID
      * @return 返回协商出的密钥，但是这个密钥是没有经过确认的
      */
-    public static byte[] caculateKey(boolean initiator, int keyBits,
+    public static byte[] calculateKey(boolean initiator, int keyBits,
         ECPrivateKeyParameters selfStaticPriv, ECPrivateKeyParameters selfEphemeralPriv, byte[] selfId,
         ECPublicKeyParameters otherStaticPub, ECPublicKeyParameters otherEphemeralPub, byte[] otherId) {
         SM2KeyExchange exch = new SM2KeyExchange();
