@@ -1,18 +1,5 @@
 package org.zz.gmhelper;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.math.BigInteger;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.SecureRandom;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
-
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1Primitive;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
@@ -33,6 +20,19 @@ import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.bouncycastle.util.io.pem.PemWriter;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.math.BigInteger;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+
 public class BCECUtil {
     private static final String ALGO_NAME_EC = "EC";
     private static final String PEM_STRING_PUBLIC = "PUBLIC KEY";
@@ -44,7 +44,7 @@ public class BCECUtil {
      * @return ECC密钥对
      */
     public static AsymmetricCipherKeyPair generateKeyPair(ECDomainParameters domainParameters,
-                                                          SecureRandom random) {
+        SecureRandom random) {
         ECKeyGenerationParameters keyGenerationParams = new ECKeyGenerationParameters(domainParameters,
             random);
         ECKeyPairGenerator keyGen = new ECKeyPairGenerator();
@@ -65,21 +65,21 @@ public class BCECUtil {
     }
 
     public static ECPublicKeyParameters createEcPublicKey(BigInteger x, BigInteger y,
-                                                          ECCurve curve, ECDomainParameters domainParameters) {
+        ECCurve curve, ECDomainParameters domainParameters) {
         byte[] xBytes = x.toByteArray();
         byte[] yBytes = y.toByteArray();
         return createEcPublicKey(xBytes, yBytes, curve, domainParameters);
     }
 
     public static ECPublicKeyParameters createEcPublicKey(String xHex, String yHex,
-                                                          ECCurve curve, ECDomainParameters domainParameters) {
+        ECCurve curve, ECDomainParameters domainParameters) {
         byte[] xBytes = ByteUtils.fromHexString(xHex);
         byte[] yBytes = ByteUtils.fromHexString(yHex);
         return createEcPublicKey(xBytes, yBytes, curve, domainParameters);
     }
 
     public static ECPublicKeyParameters createEcPublicKey(byte[] xBytes, byte[] yBytes,
-                                                          ECCurve curve, ECDomainParameters domainParameters) {
+        ECCurve curve, ECDomainParameters domainParameters) {
         final byte uncompressedFlag = 0x04;
         byte[] encodedPubKey = new byte[1 + xBytes.length + yBytes.length];
         encodedPubKey[0] = uncompressedFlag;
@@ -89,7 +89,7 @@ public class BCECUtil {
     }
 
     public static byte[] convertEcPriKeyToPkcs8Der(ECPrivateKeyParameters priKey,
-                                                   ECPublicKeyParameters pubKey) throws IOException {
+        ECPublicKeyParameters pubKey) throws IOException {
         ECDomainParameters domainParams = priKey.getParameters();
         ECParameterSpec spec = new ECParameterSpec(domainParams.getCurve(), domainParams.getG(),
             domainParams.getN(), domainParams.getH());
@@ -121,7 +121,7 @@ public class BCECUtil {
      * @throws IOException
      */
     public static byte[] convertEcPriKeyToPkcs1Der(ECPrivateKeyParameters priKey,
-                                                   ECPublicKeyParameters pubKey) throws IOException {
+        ECPublicKeyParameters pubKey) throws IOException {
         byte[] pkcs8Bytes = convertEcPriKeyToPkcs8Der(priKey, pubKey);
         PrivateKeyInfo pki = PrivateKeyInfo.getInstance(pkcs8Bytes);
         ASN1Encodable encodable = pki.parsePrivateKey();

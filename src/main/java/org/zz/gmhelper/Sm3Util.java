@@ -1,10 +1,10 @@
 package org.zz.gmhelper;
 
-import java.util.Arrays;
-
 import org.bouncycastle.crypto.digests.SM3Digest;
 import org.bouncycastle.crypto.macs.HMac;
 import org.bouncycastle.crypto.params.KeyParameter;
+
+import java.util.Arrays;
 
 public class Sm3Util extends GmBaseUtil {
 

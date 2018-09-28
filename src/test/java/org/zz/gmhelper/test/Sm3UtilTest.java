@@ -1,11 +1,11 @@
 package org.zz.gmhelper.test;
 
-import java.util.Arrays;
-
 import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.zz.gmhelper.Sm3Util;
+
+import java.util.Arrays;
 
 public class Sm3UtilTest extends GmBaseTest {
     @Test

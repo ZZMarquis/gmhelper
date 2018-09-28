@@ -1,10 +1,10 @@
 package org.zz.gmhelper.test;
 
-import java.util.Arrays;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.zz.gmhelper.Sm4Util;
+
+import java.util.Arrays;
 
 public class Sm4UtilTest extends GmBaseTest {
 

@@ -1,10 +1,5 @@
 package org.zz.gmhelper.test;
 
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.math.BigInteger;
-import java.util.Arrays;
-
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
 import org.bouncycastle.crypto.params.ECPublicKeyParameters;
@@ -13,6 +8,11 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.zz.gmhelper.BCECUtil;
 import org.zz.gmhelper.Sm2Util;
+
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.math.BigInteger;
+import java.util.Arrays;
 
 public class Sm2UtilTest extends GmBaseTest {
 

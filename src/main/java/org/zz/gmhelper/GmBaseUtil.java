@@ -1,8 +1,8 @@
 package org.zz.gmhelper;
 
-import java.security.Security;
-
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+
+import java.security.Security;
 
 public class GmBaseUtil {
     static {

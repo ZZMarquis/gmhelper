@@ -129,6 +129,7 @@ public class Sm2Util extends GmBaseUtil {
 
     /**
      * DER编码C1C2C3密文（根据《SM2密码算法使用规范》 GM/T 0009-2012）
+     *
      * @param cipherText
      * @return
      * @throws IOException
@@ -140,6 +141,7 @@ public class Sm2Util extends GmBaseUtil {
 
     /**
      * DER编码C1C2C3密文（根据《SM2密码算法使用规范》 GM/T 0009-2012）
+     *
      * @param curveLength
      * @param digestLength
      * @param cipherText
@@ -176,6 +178,7 @@ public class Sm2Util extends GmBaseUtil {
 
     /**
      * 解DER编码密文（根据《SM2密码算法使用规范》 GM/T 0009-2012）
+     *
      * @param derCipherText
      * @return
      * @throws IOException
@@ -187,6 +190,7 @@ public class Sm2Util extends GmBaseUtil {
 
     /**
      * 解DER编码密文（根据《SM2密码算法使用规范》 GM/T 0009-2012）
+     *
      * @param curveLength
      * @param digestLength
      * @param derCipherText
@@ -196,10 +200,10 @@ public class Sm2Util extends GmBaseUtil {
     public static byte[] parseSm2CipherTextDer(int curveLength, int digestLength, byte[] derCipherText)
         throws IOException {
         ASN1Sequence as = DERSequence.getInstance(derCipherText);
-        byte[] c1x = ((ASN1Integer)as.getObjectAt(0)).getValue().toByteArray();
-        byte[] c1y = ((ASN1Integer)as.getObjectAt(1)).getValue().toByteArray();
-        byte[] c3 = ((DEROctetString)as.getObjectAt(2)).getOctets();
-        byte[] c2 = ((DEROctetString)as.getObjectAt(3)).getOctets();
+        byte[] c1x = ((ASN1Integer) as.getObjectAt(0)).getValue().toByteArray();
+        byte[] c1y = ((ASN1Integer) as.getObjectAt(1)).getValue().toByteArray();
+        byte[] c3 = ((DEROctetString) as.getObjectAt(2)).getOctets();
+        byte[] c2 = ((DEROctetString) as.getObjectAt(3)).getOctets();
 
         int pos = 0;
         byte[] cipherText = new byte[1 + c1x.length + c1y.length + c2.length + c3.length];
