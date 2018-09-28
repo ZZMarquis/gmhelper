@@ -1,10 +1,11 @@
 package org.zz.gmhelper;
 
-import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.SecureRandom;
-
+import org.bouncycastle.asn1.ASN1Encodable;
+import org.bouncycastle.asn1.ASN1Encoding;
+import org.bouncycastle.asn1.ASN1Integer;
+import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.DEROctetString;
+import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.CryptoException;
@@ -18,6 +19,12 @@ import org.bouncycastle.crypto.params.ParametersWithRandom;
 import org.bouncycastle.crypto.signers.SM2Signer;
 import org.bouncycastle.math.ec.ECCurve;
 import org.bouncycastle.math.ec.ECPoint;
+
+import java.io.IOException;
+import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.SecureRandom;
 
 public class Sm2Util extends GmBaseUtil {
     //////////////////////////////////////////////////////////////////////////////////////
@@ -105,19 +112,114 @@ public class Sm2Util extends GmBaseUtil {
      * @return
      */
     public static Sm2EncryptResult parseSm2CipherText(int curveLength, int digestLength,
-                                                      byte[] cipherText) {
+        byte[] cipherText) {
         byte[] c1 = new byte[curveLength * 2 + 1];
         System.arraycopy(cipherText, 0, c1, 0, c1.length);
         byte[] c2 = new byte[cipherText.length - c1.length - digestLength];
         System.arraycopy(cipherText, c1.length, c2, 0, c2.length);
         byte[] c3 = new byte[digestLength];
-        System.arraycopy(cipherText, c1.length + c2.length, c3, 0, c2.length);
+        System.arraycopy(cipherText, c1.length + c2.length, c3, 0, c3.length);
         Sm2EncryptResult result = new Sm2EncryptResult();
         result.setC1(c1);
         result.setC2(c2);
         result.setC3(c3);
         result.setCipherText(cipherText);
         return result;
+    }
+
+    /**
+     * DER编码C1C2C3密文（根据《SM2密码算法使用规范》 GM/T 0009-2012）
+     * @param cipherText
+     * @return
+     * @throws IOException
+     */
+    public static byte[] derEncodeSm2CipherText(byte[] cipherText) throws IOException {
+        int curveLength = BCECUtil.getCurveLength(DOMAIN_PARAMS);
+        return derEncodeSm2CipherText(curveLength, SM3_DIGEST_LENGTH, cipherText);
+    }
+
+    /**
+     * DER编码C1C2C3密文（根据《SM2密码算法使用规范》 GM/T 0009-2012）
+     * @param curveLength
+     * @param digestLength
+     * @param cipherText
+     * @return
+     * @throws IOException
+     */
+    public static byte[] derEncodeSm2CipherText(int curveLength, int digestLength, byte[] cipherText)
+        throws IOException {
+        int startPos = 1;
+
+        byte[] c1x = new byte[curveLength];
+        System.arraycopy(cipherText, startPos, c1x, 0, c1x.length);
+        startPos += c1x.length;
+
+        byte[] c1y = new byte[curveLength];
+        System.arraycopy(cipherText, startPos, c1y, 0, c1y.length);
+        startPos += c1y.length;
+
+        byte[] c2 = new byte[cipherText.length - c1x.length - c1y.length - 1 - digestLength];
+        System.arraycopy(cipherText, startPos, c2, 0, c2.length);
+        startPos += c2.length;
+
+        byte[] c3 = new byte[digestLength];
+        System.arraycopy(cipherText, startPos, c3, 0, c3.length);
+
+        ASN1Encodable[] arr = new ASN1Encodable[4];
+        arr[0] = new ASN1Integer(c1x);
+        arr[1] = new ASN1Integer(c1y);
+        arr[2] = new DEROctetString(c3);
+        arr[3] = new DEROctetString(c2);
+        DERSequence ds = new DERSequence(arr);
+        return ds.getEncoded(ASN1Encoding.DER);
+    }
+
+    /**
+     * 解DER编码密文（根据《SM2密码算法使用规范》 GM/T 0009-2012）
+     * @param derCipherText
+     * @return
+     * @throws IOException
+     */
+    public static byte[] parseSm2CipherTextDer(byte[] derCipherText) throws IOException {
+        int curveLength = BCECUtil.getCurveLength(DOMAIN_PARAMS);
+        return parseSm2CipherTextDer(curveLength, SM3_DIGEST_LENGTH, derCipherText);
+    }
+
+    /**
+     * 解DER编码密文（根据《SM2密码算法使用规范》 GM/T 0009-2012）
+     * @param curveLength
+     * @param digestLength
+     * @param derCipherText
+     * @return
+     * @throws IOException
+     */
+    public static byte[] parseSm2CipherTextDer(int curveLength, int digestLength, byte[] derCipherText)
+        throws IOException {
+        ASN1Sequence as = DERSequence.getInstance(derCipherText);
+        byte[] c1x = ((ASN1Integer)as.getObjectAt(0)).getValue().toByteArray();
+        byte[] c1y = ((ASN1Integer)as.getObjectAt(1)).getValue().toByteArray();
+        byte[] c3 = ((DEROctetString)as.getObjectAt(2)).getOctets();
+        byte[] c2 = ((DEROctetString)as.getObjectAt(3)).getOctets();
+
+        int pos = 0;
+        byte[] cipherText = new byte[1 + c1x.length + c1y.length + c2.length + c3.length];
+
+        final byte uncompressedFlag = 0x04;
+        cipherText[0] = uncompressedFlag;
+        pos += 1;
+
+        System.arraycopy(c1x, 0, cipherText, pos, c1x.length);
+        pos += c1x.length;
+
+        System.arraycopy(c1y, 0, cipherText, pos, c1y.length);
+        pos += c1y.length;
+
+        System.arraycopy(c2, 0, cipherText, pos, c2.length);
+        pos += c2.length;
+
+        System.arraycopy(c3, 0, cipherText, pos, c3.length);
+
+        return cipherText;
     }
 
     /**
@@ -185,7 +287,7 @@ public class Sm2Util extends GmBaseUtil {
      * @return 验签成功返回true，失败返回false
      */
     public static boolean verify(ECPublicKeyParameters pubKey, byte[] withId, byte[] srcData,
-                                 byte[] sign) {
+        byte[] sign) {
         SM2Signer signer = new SM2Signer();
         CipherParameters param = null;
         if (withId != null) {

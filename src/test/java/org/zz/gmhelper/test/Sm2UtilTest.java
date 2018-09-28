@@ -178,6 +178,30 @@ public class Sm2UtilTest extends GmBaseTest {
         }
     }
 
+    @Test
+    public void testDerEncodeSm2CipherText() {
+        try {
+            AsymmetricCipherKeyPair keyPair = Sm2Util.generateKeyPair();
+            ECPrivateKeyParameters priKey = (ECPrivateKeyParameters) keyPair.getPrivate();
+            ECPublicKeyParameters pubKey = (ECPublicKeyParameters) keyPair.getPublic();
+
+            byte[] encryptedData = Sm2Util.encrypt(pubKey, SRC_DATA);
+
+            byte[] derCipher = Sm2Util.derEncodeSm2CipherText(encryptedData);
+            writeFile("derCipher.dat", derCipher);
+
+            byte[] decryptedData = Sm2Util.decrypt(priKey, Sm2Util.parseSm2CipherTextDer(derCipher));
+            if (!Arrays.equals(decryptedData, SRC_DATA)) {
+                Assert.fail();
+            }
+
+            Assert.assertTrue(true);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            Assert.fail();
+        }
+    }
+
     private void writeFile(String filePath, byte[] data) throws IOException {
         RandomAccessFile raf = null;
         try {
