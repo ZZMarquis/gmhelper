@@ -183,21 +183,7 @@ public class Sm2Util extends GmBaseUtil {
      * @return
      * @throws IOException
      */
-    public static byte[] parseSm2CipherTextDer(byte[] derCipherText) throws IOException {
-        int curveLength = BCECUtil.getCurveLength(DOMAIN_PARAMS);
-        return parseSm2CipherTextDer(curveLength, SM3_DIGEST_LENGTH, derCipherText);
-    }
-
-    /**
-     * 解DER编码密文（根据《SM2密码算法使用规范》 GM/T 0009-2012）
-     *
-     * @param curveLength
-     * @param digestLength
-     * @param derCipherText
-     * @return
-     * @throws IOException
-     */
-    public static byte[] parseSm2CipherTextDer(int curveLength, int digestLength, byte[] derCipherText)
+    public static byte[] parseSm2CipherTextDer(byte[] derCipherText)
         throws IOException {
         ASN1Sequence as = DERSequence.getInstance(derCipherText);
         byte[] c1x = ((ASN1Integer) as.getObjectAt(0)).getValue().toByteArray();
