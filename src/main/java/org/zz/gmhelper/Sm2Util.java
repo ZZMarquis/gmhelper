@@ -17,14 +17,24 @@ import org.bouncycastle.crypto.params.ECPublicKeyParameters;
 import org.bouncycastle.crypto.params.ParametersWithID;
 import org.bouncycastle.crypto.params.ParametersWithRandom;
 import org.bouncycastle.crypto.signers.SM2Signer;
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.bouncycastle.math.ec.ECCurve;
 import org.bouncycastle.math.ec.ECPoint;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 
 public class Sm2Util extends GmBaseUtil {
     //////////////////////////////////////////////////////////////////////////////////////
@@ -43,10 +53,11 @@ public class Sm2Util extends GmBaseUtil {
         "32C4AE2C1F1981195F9904466A39C9948FE30BBFF2660BE1715A4589334C74C7", 16);
     public final static BigInteger SM2_ECC_GY = new BigInteger(
         "BC3736A2F4F6779C59BDCEE36B692153D0A9877CC62A474002DF32E52139F0A0", 16);
+    public final static BigInteger SM2_ECC_H = BigInteger.ONE;
     public static final ECCurve CURVE = new ECCurve.Fp(SM2_ECC_P, SM2_ECC_A, SM2_ECC_B, null, null);
     public static final ECPoint G_POINT = CURVE.createPoint(SM2_ECC_GX, SM2_ECC_GY);
     public static final ECDomainParameters DOMAIN_PARAMS = new ECDomainParameters(CURVE, G_POINT,
-        SM2_ECC_N, BigInteger.ONE);
+        SM2_ECC_N, SM2_ECC_H);
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static final int SM3_DIGEST_LENGTH = 32;
@@ -59,6 +70,36 @@ public class Sm2Util extends GmBaseUtil {
     public static AsymmetricCipherKeyPair generateKeyPair() {
         SecureRandom random = new SecureRandom();
         return BCECUtil.generateKeyPair(DOMAIN_PARAMS, random);
+    }
+
+    public static KeyPair generateBCECKeyPair() throws NoSuchProviderException, NoSuchAlgorithmException,
+        InvalidAlgorithmParameterException {
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("EC", BouncyCastleProvider.PROVIDER_NAME);
+        SecureRandom random = new SecureRandom();
+        ECParameterSpec parameterSpec = new ECParameterSpec(CURVE, G_POINT, SM2_ECC_N, SM2_ECC_H);
+        kpg.initialize(parameterSpec, random);
+        return kpg.generateKeyPair();
+    }
+
+    public static ECPrivateKeyParameters convertPrivateKey(BCECPrivateKey ecPriKey) {
+        ECParameterSpec parameterSpec = ecPriKey.getParameters();
+        ECDomainParameters domainParameters = new ECDomainParameters(parameterSpec.getCurve(), parameterSpec.getG(),
+            parameterSpec.getN(), parameterSpec.getH());
+        return new ECPrivateKeyParameters(ecPriKey.getD(), domainParameters);
+    }
+
+    public static ECPublicKeyParameters convertPublicKey(BCECPublicKey ecPubKey) {
+        ECParameterSpec parameterSpec = ecPubKey.getParameters();
+        ECDomainParameters domainParameters = new ECDomainParameters(parameterSpec.getCurve(), parameterSpec.getG(),
+            parameterSpec.getN(), parameterSpec.getH());
+        return new ECPublicKeyParameters(ecPubKey.getQ(), domainParameters);
+    }
+
+    public static BCECPublicKey convertPublicKey(byte[] derBytes) throws NoSuchProviderException,
+        NoSuchAlgorithmException, InvalidKeySpecException {
+        X509EncodedKeySpec eks = new X509EncodedKeySpec(derBytes);
+        KeyFactory kf = KeyFactory.getInstance("EC", BouncyCastleProvider.PROVIDER_NAME);
+        return (BCECPublicKey) kf.generatePublic(eks);
     }
 
     /**
