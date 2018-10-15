@@ -4,6 +4,6 @@ BC库在1.59的版本已经基本实现了国密算法（SM2、SM3、SM4），�
 2. SM2 X509v3证书的签发  
 
 ------------------
-如果觉得对你还有帮助，欢迎自愿捐献  
+如果觉得对你有帮助，欢迎自愿捐赠  
 ![微信扫码](https://github.com/ZZMarquis/gmhelper/blob/master/donate.png "")  
 （微信扫码）
