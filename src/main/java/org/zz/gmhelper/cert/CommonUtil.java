@@ -50,7 +50,7 @@ public class CommonUtil {
         }
     }
 
-    public static PKCS10CertificationRequest createCSR(X500Name subject, PublicKey pubKey, PrivateKey priKey,
+    public static PKCS10CertificationRequest createCSR(X500Name subject, Sm2PublicKey pubKey, PrivateKey priKey,
         String signAlgo) throws OperatorCreationException {
         PKCS10CertificationRequestBuilder csrBuilder = new JcaPKCS10CertificationRequestBuilder(subject, pubKey);
         ContentSigner signerBuilder = new JcaContentSignerBuilder(signAlgo)

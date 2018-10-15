@@ -61,14 +61,13 @@ public class Sm2X509CertMaker {
         throws Exception {
         PKCS10CertificationRequest request = new PKCS10CertificationRequest(csr);
         PublicKey subPub = Sm2Util.convertPublicKey(request.getSubjectPublicKeyInfo());
-        Sm2PublicKey sm2SubPub = new Sm2PublicKey(subPub.getAlgorithm(), (BCECPublicKey) subPub);
         PrivateKey issPriv = issuerKeyPair.getPrivate();
         PublicKey issPub = issuerKeyPair.getPublic();
 
         JcaX509ExtensionUtils extUtils = new JcaX509ExtensionUtils();
         X509v3CertificateBuilder v3CertGen = new JcaX509v3CertificateBuilder(issuerDN, snAllocator.incrementAndGet(),
             new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis() + certExpire),
-            request.getSubject(), sm2SubPub);
+            request.getSubject(), subPub);
         v3CertGen.addExtension(Extension.subjectKeyIdentifier, false,
             extUtils.createSubjectKeyIdentifier(SubjectPublicKeyInfo.getInstance(subPub.getEncoded())));
         v3CertGen.addExtension(Extension.authorityKeyIdentifier, false,

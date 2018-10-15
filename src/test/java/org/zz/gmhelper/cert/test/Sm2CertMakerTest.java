@@ -4,6 +4,7 @@ import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.KeyUsage;
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.Assert;
 import org.junit.Test;
@@ -11,6 +12,7 @@ import org.zz.gmhelper.Sm2Util;
 import org.zz.gmhelper.cert.CertSNAllocator;
 import org.zz.gmhelper.cert.CommonUtil;
 import org.zz.gmhelper.cert.FileSNAllocator;
+import org.zz.gmhelper.cert.Sm2PublicKey;
 import org.zz.gmhelper.cert.Sm2X509CertMaker;
 import org.zz.gmhelper.cert.exception.InvalidX500NameException;
 import org.zz.gmhelper.test.util.FileUtil;
@@ -33,7 +35,9 @@ public class Sm2CertMakerTest {
         try {
             KeyPair subKP = Sm2Util.generateBCECKeyPair();
             X500Name subDN = buildSubjectDN();
-            byte[] csr = CommonUtil.createCSR(subDN, subKP.getPublic(), subKP.getPrivate(),
+            Sm2PublicKey sm2SubPub = new Sm2PublicKey(subKP.getPublic().getAlgorithm(),
+                (BCECPublicKey) subKP.getPublic());
+            byte[] csr = CommonUtil.createCSR(subDN, sm2SubPub, subKP.getPrivate(),
                 Sm2X509CertMaker.SIGN_ALGO_SM3WITHSM2).getEncoded();
             Sm2X509CertMaker certMaker = buildCertMaker();
             X509Certificate cert = certMaker.makeCertificate(false,

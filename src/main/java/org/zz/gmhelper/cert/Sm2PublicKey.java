@@ -31,4 +31,9 @@ public class Sm2PublicKey extends BCECPublicKey {
 
         return KeyUtil.getEncodedSubjectPublicKeyInfo(info);
     }
+
+    @Override
+    public void setPointFormat(String style) {
+        withCompression = !("UNCOMPRESSED".equalsIgnoreCase(style));
+    }
 }
