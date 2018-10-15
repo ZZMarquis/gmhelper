@@ -21,18 +21,14 @@ import java.security.PublicKey;
 import java.util.Iterator;
 import java.util.Map;
 
-public class PKIUtil {
-    private static final String ALGO_NAME_SM3WITHSM2 = "SM3withSM2";
-    private static AlgorithmIdentifier SIG_ALGO_ID_SM3WITHSM2 = null;
-    private static AlgorithmIdentifier DIG_ALGO_ID_SM3WITHSM2 = null;
-
-    static {
-        DefaultSignatureAlgorithmIdentifierFinder sigFinder = new DefaultSignatureAlgorithmIdentifierFinder();
-        SIG_ALGO_ID_SM3WITHSM2 = sigFinder.find(ALGO_NAME_SM3WITHSM2);
-        DefaultDigestAlgorithmIdentifierFinder digFinder = new DefaultDigestAlgorithmIdentifierFinder();
-        DIG_ALGO_ID_SM3WITHSM2 = digFinder.find(SIG_ALGO_ID_SM3WITHSM2);
-    }
-
+public class CommonUtil {
+    /**
+     * 如果不知道怎么填充names，可以查看org.bouncycastle.asn1.x500.style.BCStyle这个类，
+     * names的key值必须是BCStyle.DefaultLookUp中存在的（可以不关心大小写）
+     * @param names
+     * @return
+     * @throws InvalidX500NameException
+     */
     public static X500Name buildX500Name(Map<String, String> names) throws InvalidX500NameException {
         if (names == null || names.size() == 0) {
             throw new InvalidX500NameException("names can not be empty");
@@ -53,12 +49,21 @@ public class PKIUtil {
         }
     }
 
-    public static PKCS10CertificationRequest createCSR(X500Name subject, PublicKey pubKey, PrivateKey priKey)
-        throws OperatorCreationException {
+    public static PKCS10CertificationRequest createCSR(X500Name subject, PublicKey pubKey, PrivateKey priKey,
+        String signAlgo) throws OperatorCreationException {
         PKCS10CertificationRequestBuilder csrBuilder = new JcaPKCS10CertificationRequestBuilder(subject, pubKey);
-        ContentSigner signerBuilder = new JcaContentSignerBuilder(ALGO_NAME_SM3WITHSM2)
+        ContentSigner signerBuilder = new JcaContentSignerBuilder(signAlgo)
             .setProvider(BouncyCastleProvider.PROVIDER_NAME).build(priKey);
         return csrBuilder.build(signerBuilder);
     }
 
+    public static AlgorithmIdentifier findSignatureAlgorithmIdentifier(String algoName) {
+        DefaultSignatureAlgorithmIdentifierFinder sigFinder = new DefaultSignatureAlgorithmIdentifierFinder();
+        return sigFinder.find(algoName);
+    }
+
+    public static AlgorithmIdentifier findDigestAlgorithmIdentifier(String algoName) {
+        DefaultDigestAlgorithmIdentifierFinder digFinder = new DefaultDigestAlgorithmIdentifierFinder();
+        return digFinder.find(findSignatureAlgorithmIdentifier(algoName));
+    }
 }
