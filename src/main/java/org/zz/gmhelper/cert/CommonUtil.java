@@ -25,6 +25,7 @@ public class CommonUtil {
     /**
      * 如果不知道怎么填充names，可以查看org.bouncycastle.asn1.x500.style.BCStyle这个类，
      * names的key值必须是BCStyle.DefaultLookUp中存在的（可以不关心大小写）
+     *
      * @param names
      * @return
      * @throws InvalidX500NameException

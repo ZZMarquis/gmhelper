@@ -21,8 +21,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.Security;
 import java.security.cert.X509Certificate;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Sm2CertMakerTest {
 

@@ -1,7 +1,6 @@
 package org.zz.gmhelper.cert;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.math.BigInteger;
 

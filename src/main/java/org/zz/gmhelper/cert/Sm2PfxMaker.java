@@ -24,11 +24,10 @@ import java.security.cert.X509Certificate;
 public class Sm2PfxMaker {
 
     /**
-     *
      * @param privKey 用户私钥
-     * @param pubKey 用户公钥
-     * @param chain X509证书数组，切记这里固定了必须是3个元素的数组，且第一个必须是叶子证书、第二个为中级CA证书、第三个为根CA证书
-     * @param passwd 口令
+     * @param pubKey  用户公钥
+     * @param chain   X509证书数组，切记这里固定了必须是3个元素的数组，且第一个必须是叶子证书、第二个为中级CA证书、第三个为根CA证书
+     * @param passwd  口令
      * @return
      * @throws NoSuchAlgorithmException
      * @throws IOException
@@ -68,19 +67,18 @@ public class Sm2PfxMaker {
         certs[1] = caCertBagBuilder.build();
         certs[2] = taCertBagBuilder.build();
         pfxPduBuilder.addEncryptedData(new BcPKCS12PBEOutputEncryptorBuilder(
-            PKCSObjectIdentifiers.pbeWithSHAAnd40BitRC2_CBC,
-            new CBCBlockCipher(new RC2Engine())).build(passwdChars),
+                PKCSObjectIdentifiers.pbeWithSHAAnd40BitRC2_CBC,
+                new CBCBlockCipher(new RC2Engine())).build(passwdChars),
             certs);
         pfxPduBuilder.addData(keyBagBuilder.build());
         return pfxPduBuilder.build(new BcPKCS12MacCalculatorBuilder(), passwdChars);
     }
 
     /**
-     *
      * @param privKey 用户私钥
-     * @param pubKey 用户公钥
-     * @param cert X509证书
-     * @param passwd 口令
+     * @param pubKey  用户公钥
+     * @param cert    X509证书
+     * @param passwd  口令
      * @return
      * @throws NoSuchAlgorithmException
      * @throws IOException
