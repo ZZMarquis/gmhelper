@@ -3,6 +3,8 @@ package org.zz.gmhelper.test;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
 import org.bouncycastle.crypto.params.ECPublicKeyParameters;
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -12,6 +14,7 @@ import org.zz.gmhelper.Sm2Util;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.math.BigInteger;
+import java.security.KeyPair;
 import java.util.Arrays;
 
 public class Sm2UtilTest extends GmBaseTest {
@@ -196,6 +199,30 @@ public class Sm2UtilTest extends GmBaseTest {
             }
 
             Assert.assertTrue(true);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void testGenerateBCECKeyPair() {
+        try {
+            KeyPair keyPair = Sm2Util.generateBCECKeyPair();
+            ECPrivateKeyParameters priKey = Sm2Util.convertPrivateKey((BCECPrivateKey) keyPair.getPrivate());
+            ECPublicKeyParameters pubKey = Sm2Util.convertPublicKey((BCECPublicKey) keyPair.getPublic());
+
+            byte[] sign = Sm2Util.sign(priKey, WITH_ID, SRC_DATA);
+            boolean flag = Sm2Util.verify(pubKey, WITH_ID, SRC_DATA, sign);
+            if (!flag) {
+                Assert.fail("verify failed");
+            }
+
+            sign = Sm2Util.sign(priKey, SRC_DATA);
+            flag = Sm2Util.verify(pubKey, SRC_DATA, sign);
+            if (!flag) {
+                Assert.fail("verify failed");
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
             Assert.fail();
