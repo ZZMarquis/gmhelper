@@ -59,7 +59,7 @@ public class Sm2X509CertMaker {
     public X509Certificate makeCertificate(boolean isCA, KeyUsage keyUsage, byte[] csr)
         throws Exception {
         PKCS10CertificationRequest request = new PKCS10CertificationRequest(csr);
-        PublicKey subPub = Sm2Util.convertPublicKey(request.getSubjectPublicKeyInfo().toASN1Primitive().getEncoded());
+        PublicKey subPub = Sm2Util.convertPublicKey(request.getSubjectPublicKeyInfo());
         PrivateKey issPriv = issuerKeyPair.getPrivate();
         PublicKey issPub = issuerKeyPair.getPublic();
 

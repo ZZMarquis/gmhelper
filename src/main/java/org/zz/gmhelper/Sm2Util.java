@@ -6,6 +6,7 @@ import org.bouncycastle.asn1.ASN1Integer;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.DERSequence;
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.CryptoException;
@@ -100,6 +101,11 @@ public class Sm2Util extends GmBaseUtil {
         X509EncodedKeySpec eks = new X509EncodedKeySpec(derBytes);
         KeyFactory kf = KeyFactory.getInstance("EC", BouncyCastleProvider.PROVIDER_NAME);
         return (BCECPublicKey) kf.generatePublic(eks);
+    }
+
+    public static BCECPublicKey convertPublicKey(SubjectPublicKeyInfo subPubInfo) throws NoSuchProviderException,
+        NoSuchAlgorithmException, InvalidKeySpecException, IOException {
+        return (BCECPublicKey) convertPublicKey(subPubInfo.toASN1Primitive().getEncoded(ASN1Encoding.DER));
     }
 
     /**
