@@ -28,7 +28,6 @@ public class Sm2X509CertMaker {
     private long certExpire;
     private X500Name issuerDN;
     private CertSNAllocator snAllocator;
-    private X509ExtensionUtils x509ExtensionUtils;
     private KeyPair issuerKeyPair;
     private JcaContentSignerBuilder contentSignerBuilder;
 
@@ -51,12 +50,6 @@ public class Sm2X509CertMaker {
         } else {
             throw new RuntimeException("Unsupported PublicKey Algorithm:" + issuerKeyPair.getPublic().getAlgorithm());
         }
-
-        try {
-            x509ExtensionUtils = new JcaX509ExtensionUtils();
-        } catch (NoSuchAlgorithmException ex) {
-            throw new RuntimeException(ex);
-        }
     }
 
     /**
@@ -74,13 +67,14 @@ public class Sm2X509CertMaker {
         PrivateKey issPriv = issuerKeyPair.getPrivate();
         PublicKey  issPub  = issuerKeyPair.getPublic();
 
+        JcaX509ExtensionUtils extUtils = new JcaX509ExtensionUtils();
         X509v3CertificateBuilder v3CertGen = new JcaX509v3CertificateBuilder(issuerDN, snAllocator.incrementAndGet(),
             new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis() + certExpire),
             request.getSubject(), subPub);
         v3CertGen.addExtension(Extension.subjectKeyIdentifier, false,
-            x509ExtensionUtils.createSubjectKeyIdentifier(SubjectPublicKeyInfo.getInstance(subPub.getEncoded())));
+            extUtils.createSubjectKeyIdentifier(SubjectPublicKeyInfo.getInstance(subPub.getEncoded())));
         v3CertGen.addExtension(Extension.authorityKeyIdentifier, false,
-            x509ExtensionUtils.createAuthorityKeyIdentifier(SubjectPublicKeyInfo.getInstance(issPub.getEncoded())));
+            extUtils.createAuthorityKeyIdentifier(SubjectPublicKeyInfo.getInstance(issPub.getEncoded())));
         v3CertGen.addExtension(Extension.basicConstraints, false, new BasicConstraints(isCA));
         v3CertGen.addExtension(Extension.keyUsage, false, keyUsage);
 

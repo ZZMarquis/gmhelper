@@ -1,16 +1,19 @@
 package org.zz.gmhelper.cert.test;
 
+import org.bouncycastle.asn1.ASN1Encoding;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.KeyUsage;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.pkcs.PKCS12PfxPdu;
 import org.junit.Assert;
 import org.junit.Test;
 import org.zz.gmhelper.Sm2Util;
 import org.zz.gmhelper.cert.CertSNAllocator;
 import org.zz.gmhelper.cert.CommonUtil;
 import org.zz.gmhelper.cert.FileSNAllocator;
+import org.zz.gmhelper.cert.Sm2PfxMaker;
 import org.zz.gmhelper.cert.Sm2X509CertMaker;
 import org.zz.gmhelper.cert.exception.InvalidX500NameException;
 import org.zz.gmhelper.test.util.FileUtil;
@@ -21,52 +24,30 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.Security;
 import java.security.cert.X509Certificate;
-import java.util.HashMap;
-import java.util.Map;
 
-public class Sm2CertMakerTest {
-
+public class Sm2PfxMakerTest {
     static {
         Security.addProvider(new BouncyCastleProvider());
     }
 
     @Test
-    public void testMakeCertificate() {
+    public void testMakePfx() {
         try {
             KeyPair subKP = Sm2Util.generateBCECKeyPair();
-            X500Name subDN = buildSubjectDN();
+            X500Name subDN = Sm2CertMakerTest.buildSubjectDN();
             byte[] csr = CommonUtil.createCSR(subDN, subKP.getPublic(), subKP.getPrivate(),
                 Sm2X509CertMaker.SIGN_ALGO_SM3WITHSM2).getEncoded();
-            Sm2X509CertMaker certMaker = buildCertMaker();
+            Sm2X509CertMaker certMaker = Sm2CertMakerTest.buildCertMaker();
             X509Certificate cert = certMaker.makeCertificate(false,
                 new KeyUsage(KeyUsage.digitalSignature | KeyUsage.dataEncipherment), csr);
-            FileUtil.writeFile("D:/test.cer", cert.getEncoded());
+
+            Sm2PfxMaker pfxMaker = new Sm2PfxMaker();
+            PKCS12PfxPdu pfx = pfxMaker.makePfx(subKP.getPrivate(), subKP.getPublic(), cert, "12345678");
+            byte[] pfxDER = pfx.getEncoded(ASN1Encoding.DER);
+            FileUtil.writeFile("D:/test.pfx", pfxDER);
         } catch (Exception ex) {
             ex.printStackTrace();
             Assert.fail();
         }
-    }
-
-    public static X500Name buildSubjectDN() {
-        X500NameBuilder builder = new X500NameBuilder(BCStyle.INSTANCE);
-        builder.addRDN(BCStyle.CN, "zz");
-        builder.addRDN(BCStyle.C, "CN");
-        builder.addRDN(BCStyle.O, "org.zz");
-        builder.addRDN(BCStyle.OU, "org.zz");
-        return builder.build();
-    }
-
-    public static Sm2X509CertMaker buildCertMaker() throws InvalidAlgorithmParameterException,
-        NoSuchAlgorithmException, NoSuchProviderException, InvalidX500NameException {
-        X500NameBuilder builder = new X500NameBuilder(BCStyle.INSTANCE);
-        builder.addRDN(BCStyle.CN, "ZZ Root CA");
-        builder.addRDN(BCStyle.C, "CN");
-        builder.addRDN(BCStyle.O, "org.zz");
-        builder.addRDN(BCStyle.OU, "org.zz");
-        X500Name issuerName = builder.build();
-        KeyPair issKP = Sm2Util.generateBCECKeyPair();
-        long certExpire = 20L * 365 * 24 * 60 * 60 * 1000; // 20年
-        CertSNAllocator snAllocator = new FileSNAllocator(); // 实际应用中可能需要使用数据库来维护证书序列号
-        return new Sm2X509CertMaker(issKP, certExpire, issuerName, snAllocator);
     }
 }
