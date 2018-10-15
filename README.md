@@ -5,4 +5,5 @@ BC库在1.59的版本已经基本实现了国密算法（SM2、SM3、SM4），�
 
 ------------------
 如果觉得对你还有帮助，欢迎自愿捐献  
-![微信扫码](https://github.com/ZZMarquis/gmhelper/blob/master/donate.png "")
+![微信扫码](https://github.com/ZZMarquis/gmhelper/blob/master/donate.png "")  
+（微信扫码）
