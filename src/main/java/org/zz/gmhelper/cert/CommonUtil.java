@@ -17,7 +17,6 @@ import org.bouncycastle.pkcs.jcajce.JcaPKCS10CertificationRequestBuilder;
 import org.zz.gmhelper.cert.exception.InvalidX500NameException;
 
 import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -50,7 +49,7 @@ public class CommonUtil {
         }
     }
 
-    public static PKCS10CertificationRequest createCSR(X500Name subject, Sm2PublicKey pubKey, PrivateKey priKey,
+    public static PKCS10CertificationRequest createCSR(X500Name subject, SM2PublicKey pubKey, PrivateKey priKey,
         String signAlgo) throws OperatorCreationException {
         PKCS10CertificationRequestBuilder csrBuilder = new JcaPKCS10CertificationRequestBuilder(subject, pubKey);
         ContentSigner signerBuilder = new JcaContentSignerBuilder(signAlgo)

@@ -9,12 +9,12 @@ import org.bouncycastle.asn1.x9.X9ObjectIdentifiers;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 import org.bouncycastle.jcajce.provider.asymmetric.util.KeyUtil;
 
-public class Sm2PublicKey extends BCECPublicKey {
+public class SM2PublicKey extends BCECPublicKey {
     public static final ASN1ObjectIdentifier ID_SM2_PUBKEY_PARAM = new ASN1ObjectIdentifier("1.2.156.10197.1.301");
 
     private boolean withCompression;
 
-    public Sm2PublicKey(String algorithm, BCECPublicKey key) throws NoSuchFieldException, IllegalAccessException {
+    public SM2PublicKey(String algorithm, BCECPublicKey key) throws NoSuchFieldException, IllegalAccessException {
         super(algorithm, key);
         this.withCompression = false;
     }

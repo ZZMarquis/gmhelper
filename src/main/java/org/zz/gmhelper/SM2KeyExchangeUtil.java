@@ -9,7 +9,7 @@ import org.bouncycastle.crypto.params.SM2KeyExchangePublicParameters;
 
 import java.util.Arrays;
 
-public class Sm2KeyExchangeUtil {
+public class SM2KeyExchangeUtil {
     /**
      * @param initiator         true表示发起方，false表示响应方
      * @param keyBits           生成的密钥长度

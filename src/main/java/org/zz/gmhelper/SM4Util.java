@@ -16,7 +16,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-public class Sm4Util extends GmBaseUtil {
+public class SM4Util extends GMBaseUtil {
     public static final String ALGORITHM_NAME = "SM4";
     public static final String ALGORITHM_NAME_ECB_PADDING = "SM4/ECB/PKCS5Padding";
     public static final String ALGORITHM_NAME_CBC_PADDING = "SM4/CBC/PKCS5Padding";

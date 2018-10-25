@@ -9,20 +9,19 @@ import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.zz.gmhelper.BCECUtil;
-import org.zz.gmhelper.Sm2Util;
+import org.zz.gmhelper.SM2Util;
+import org.zz.gmhelper.test.util.FileUtil;
 
-import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.util.Arrays;
 
-public class Sm2UtilTest extends GmBaseTest {
+public class SM2UtilTest extends GMBaseTest {
 
     @Test
     public void testSignAndVerify() {
         try {
-            AsymmetricCipherKeyPair keyPair = Sm2Util.generateKeyPair();
+            AsymmetricCipherKeyPair keyPair = SM2Util.generateKeyPair();
             ECPrivateKeyParameters priKey = (ECPrivateKeyParameters) keyPair.getPrivate();
             ECPublicKeyParameters pubKey = (ECPublicKeyParameters) keyPair.getPublic();
 
@@ -35,30 +34,29 @@ public class Sm2UtilTest extends GmBaseTest {
             System.out.println("Pub Point Hex:"
                 + ByteUtils.toHexString(pubKey.getQ().getEncoded(false)).toUpperCase());
 
-            byte[] sign = Sm2Util.sign(priKey, WITH_ID, SRC_DATA);
+            byte[] sign = SM2Util.sign(priKey, WITH_ID, SRC_DATA);
             System.out.println("SM2 sign with withId result:\n" + ByteUtils.toHexString(sign));
-            boolean flag = Sm2Util.verify(pubKey, WITH_ID, SRC_DATA, sign);
+            boolean flag = SM2Util.verify(pubKey, WITH_ID, SRC_DATA, sign);
             if (!flag) {
-                Assert.assertTrue(false);
+                Assert.fail("verify failed");
             }
 
-            sign = Sm2Util.sign(priKey, SRC_DATA);
+            sign = SM2Util.sign(priKey, SRC_DATA);
             System.out.println("SM2 sign without withId result:\n" + ByteUtils.toHexString(sign));
-            flag = Sm2Util.verify(pubKey, SRC_DATA, sign);
+            flag = SM2Util.verify(pubKey, SRC_DATA, sign);
             if (!flag) {
-                Assert.assertTrue(false);
+                Assert.fail("verify failed");
             }
-            Assert.assertTrue(true);
         } catch (Exception ex) {
             ex.printStackTrace();
-            Assert.assertTrue(false);
+            Assert.fail();
         }
     }
 
     @Test
     public void testEncryptAndDecrypt() {
         try {
-            AsymmetricCipherKeyPair keyPair = Sm2Util.generateKeyPair();
+            AsymmetricCipherKeyPair keyPair = SM2Util.generateKeyPair();
             ECPrivateKeyParameters priKey = (ECPrivateKeyParameters) keyPair.getPrivate();
             ECPublicKeyParameters pubKey = (ECPublicKeyParameters) keyPair.getPublic();
 
@@ -71,67 +69,64 @@ public class Sm2UtilTest extends GmBaseTest {
             System.out.println("Pub Point Hex:"
                 + ByteUtils.toHexString(pubKey.getQ().getEncoded(false)).toUpperCase());
 
-            byte[] encryptedData = Sm2Util.encrypt(pubKey, SRC_DATA);
+            byte[] encryptedData = SM2Util.encrypt(pubKey, SRC_DATA);
             System.out.println("SM2 encrypt result:\n" + ByteUtils.toHexString(encryptedData));
-            byte[] decryptedData = Sm2Util.decrypt(priKey, encryptedData);
+            byte[] decryptedData = SM2Util.decrypt(priKey, encryptedData);
             System.out.println("SM2 decrypt result:\n" + ByteUtils.toHexString(decryptedData));
             if (!Arrays.equals(decryptedData, SRC_DATA)) {
-                Assert.assertTrue(false);
+                Assert.fail();
             }
-            Assert.assertTrue(true);
         } catch (Exception ex) {
             ex.printStackTrace();
-            Assert.assertTrue(false);
+            Assert.fail();
         }
     }
 
     @Test
     public void testKeyPairEncoding() {
         try {
-            AsymmetricCipherKeyPair keyPair = Sm2Util.generateKeyPair();
+            AsymmetricCipherKeyPair keyPair = SM2Util.generateKeyPair();
             ECPrivateKeyParameters priKey = (ECPrivateKeyParameters) keyPair.getPrivate();
             ECPublicKeyParameters pubKey = (ECPublicKeyParameters) keyPair.getPublic();
 
-            byte[] priKeyPkcs8Der = BCECUtil.convertEcPriKeyToPkcs8Der(priKey, pubKey);
+            byte[] priKeyPkcs8Der = BCECUtil.convertECPrivateKeyToPKCS8(priKey, pubKey);
             System.out.println("private key pkcs8 der length:" + priKeyPkcs8Der.length);
             System.out.println("private key pkcs8 der:" + ByteUtils.toHexString(priKeyPkcs8Der));
-            writeFile("D:/ec.pkcs8.pri.der", priKeyPkcs8Der);
+            FileUtil.writeFile("D:/ec.pkcs8.pri.der", priKeyPkcs8Der);
 
-            String priKeyPkcs8Pem = BCECUtil.convertPkcs8DerEcPriKeyToPem(priKeyPkcs8Der);
-            writeFile("D:/ec.pkcs8.pri.pem", priKeyPkcs8Pem.getBytes("UTF-8"));
-            byte[] priKeyFromPem = BCECUtil.convertPemToPkcs8DerEcPriKey(priKeyPkcs8Pem);
+            String priKeyPkcs8Pem = BCECUtil.convertECPrivateKeyPKCS8ToPEM(priKeyPkcs8Der);
+            FileUtil.writeFile("D:/ec.pkcs8.pri.pem", priKeyPkcs8Pem.getBytes("UTF-8"));
+            byte[] priKeyFromPem = BCECUtil.convertECPrivateKeyPEMToPKCS8(priKeyPkcs8Pem);
             if (!Arrays.equals(priKeyFromPem, priKeyPkcs8Der)) {
                 throw new Exception("priKeyFromPem != priKeyPkcs8Der");
             }
 
-            ECPrivateKeyParameters newPriKey = BCECUtil.convertPkcs1DerToEcPriKey(priKeyPkcs8Der);
+            BCECPrivateKey newPriKey = BCECUtil.convertPKCS8ToECPrivateKey(priKeyPkcs8Der);
 
-            byte[] priKeyPkcs1Der = BCECUtil.convertEcPriKeyToPkcs1Der(priKey, pubKey);
+            byte[] priKeyPkcs1Der = BCECUtil.convertECPrivateKeyToSEC1(priKey, pubKey);
             System.out.println("private key pkcs1 der length:" + priKeyPkcs1Der.length);
             System.out.println("private key pkcs1 der:" + ByteUtils.toHexString(priKeyPkcs1Der));
-            writeFile("D:/ec.pkcs1.pri", priKeyPkcs1Der);
+            FileUtil.writeFile("D:/ec.pkcs1.pri", priKeyPkcs1Der);
 
-            byte[] pubKeyX509Der = BCECUtil.convertEcPubKeyToX509Der(pubKey);
+            byte[] pubKeyX509Der = BCECUtil.convertECPublicKeyToX509(pubKey);
             System.out.println("public key der length:" + pubKeyX509Der.length);
             System.out.println("public key der:" + ByteUtils.toHexString(pubKeyX509Der));
-            writeFile("D:/ec.x509.pub.der", pubKeyX509Der);
+            FileUtil.writeFile("D:/ec.x509.pub.der", pubKeyX509Der);
 
-            String pubKeyX509Pem = BCECUtil.convertX509DerEcPubKeyToPem(pubKeyX509Der);
-            writeFile("D:/ec.x509.pub.pem", pubKeyX509Pem.getBytes("UTF-8"));
-            byte[] pubKeyFromPem = BCECUtil.convertPemToX509DerEcPubKey(pubKeyX509Pem);
+            String pubKeyX509Pem = BCECUtil.convertECPublicKeyX509ToPEM(pubKeyX509Der);
+            FileUtil.writeFile("D:/ec.x509.pub.pem", pubKeyX509Pem.getBytes("UTF-8"));
+            byte[] pubKeyFromPem = BCECUtil.convertECPublicKeyPEMToX509(pubKeyX509Pem);
             if (!Arrays.equals(pubKeyFromPem, pubKeyX509Der)) {
                 throw new Exception("pubKeyFromPem != pubKeyX509Der");
             }
-
-            Assert.assertTrue(true);
         } catch (Exception ex) {
             ex.printStackTrace();
-            Assert.assertTrue(false);
+            Assert.fail();
         }
     }
 
     @Test
-    public void testSm2KeyRecovery() {
+    public void testSM2KeyRecovery() {
         try {
             String priHex = "5DD701828C424B84C5D56770ECF7C4FE882E654CAC53C7CC89A66B1709068B9D";
             String xHex = "FF6712D3A7FC0D1B9E01FF471A87EA87525E47C7775039D19304E554DEFE0913";
@@ -143,25 +138,22 @@ public class Sm2UtilTest extends GmBaseTest {
             byte[] withId = ByteUtils.fromHexString("31323334353637383132333435363738");
 
             ECPrivateKeyParameters priKey = new ECPrivateKeyParameters(
-                new BigInteger(ByteUtils.fromHexString(priHex)), Sm2Util.DOMAIN_PARAMS);
-            ECPublicKeyParameters pubKey = BCECUtil.createEcPublicKey(xHex, yHex, Sm2Util.CURVE, Sm2Util.DOMAIN_PARAMS);
+                new BigInteger(ByteUtils.fromHexString(priHex)), SM2Util.DOMAIN_PARAMS);
+            ECPublicKeyParameters pubKey = BCECUtil.createECPublicKeyParameters(xHex, yHex, SM2Util.CURVE, SM2Util.DOMAIN_PARAMS);
 
-            if (!Sm2Util.verify(pubKey, src, signBytes)) {
-                System.out.println("verify failed");
-                Assert.assertTrue(false);
+            if (!SM2Util.verify(pubKey, src, signBytes)) {
+                Assert.fail("verify failed");
             }
-
-            Assert.assertTrue(true);
         } catch (Exception ex) {
             ex.printStackTrace();
-            Assert.assertTrue(false);
+            Assert.fail();
         }
     }
 
     @Test
-    public void testSm2KeyGen2() {
+    public void testSM2KeyGen2() {
         try {
-            AsymmetricCipherKeyPair keyPair = Sm2Util.generateKeyPair();
+            AsymmetricCipherKeyPair keyPair = SM2Util.generateKeyPair();
             ECPrivateKeyParameters priKey = (ECPrivateKeyParameters) keyPair.getPrivate();
             ECPublicKeyParameters pubKey = (ECPublicKeyParameters) keyPair.getPublic();
 
@@ -173,27 +165,25 @@ public class Sm2UtilTest extends GmBaseTest {
                 + ByteUtils.toHexString(pubKey.getQ().getAffineYCoord().getEncoded()).toUpperCase());
             System.out.println("Pub Point Hex:"
                 + ByteUtils.toHexString(pubKey.getQ().getEncoded(false)).toUpperCase());
-
-            Assert.assertTrue(true);
         } catch (Exception ex) {
             ex.printStackTrace();
-            Assert.assertTrue(false);
+            Assert.fail();
         }
     }
 
     @Test
-    public void testDerEncodeSm2CipherText() {
+    public void testEncodeSM2CipherToDER() {
         try {
-            AsymmetricCipherKeyPair keyPair = Sm2Util.generateKeyPair();
+            AsymmetricCipherKeyPair keyPair = SM2Util.generateKeyPair();
             ECPrivateKeyParameters priKey = (ECPrivateKeyParameters) keyPair.getPrivate();
             ECPublicKeyParameters pubKey = (ECPublicKeyParameters) keyPair.getPublic();
 
-            byte[] encryptedData = Sm2Util.encrypt(pubKey, SRC_DATA);
+            byte[] encryptedData = SM2Util.encrypt(pubKey, SRC_DATA);
 
-            byte[] derCipher = Sm2Util.derEncodeSm2CipherText(encryptedData);
-            writeFile("derCipher.dat", derCipher);
+            byte[] derCipher = SM2Util.encodeSM2CipherToDER(encryptedData);
+            FileUtil.writeFile("derCipher.dat", derCipher);
 
-            byte[] decryptedData = Sm2Util.decrypt(priKey, Sm2Util.parseSm2CipherTextDer(derCipher));
+            byte[] decryptedData = SM2Util.decrypt(priKey, SM2Util.decodeDERSM2Cipher(derCipher));
             if (!Arrays.equals(decryptedData, SRC_DATA)) {
                 Assert.fail();
             }
@@ -208,36 +198,24 @@ public class Sm2UtilTest extends GmBaseTest {
     @Test
     public void testGenerateBCECKeyPair() {
         try {
-            KeyPair keyPair = Sm2Util.generateBCECKeyPair();
-            ECPrivateKeyParameters priKey = Sm2Util.convertPrivateKey((BCECPrivateKey) keyPair.getPrivate());
-            ECPublicKeyParameters pubKey = Sm2Util.convertPublicKey((BCECPublicKey) keyPair.getPublic());
+            KeyPair keyPair = SM2Util.generateBCECKeyPair();
+            ECPrivateKeyParameters priKey = SM2Util.convertPrivateKey((BCECPrivateKey) keyPair.getPrivate());
+            ECPublicKeyParameters pubKey = SM2Util.convertPublicKey((BCECPublicKey) keyPair.getPublic());
 
-            byte[] sign = Sm2Util.sign(priKey, WITH_ID, SRC_DATA);
-            boolean flag = Sm2Util.verify(pubKey, WITH_ID, SRC_DATA, sign);
+            byte[] sign = SM2Util.sign(priKey, WITH_ID, SRC_DATA);
+            boolean flag = SM2Util.verify(pubKey, WITH_ID, SRC_DATA, sign);
             if (!flag) {
                 Assert.fail("verify failed");
             }
 
-            sign = Sm2Util.sign(priKey, SRC_DATA);
-            flag = Sm2Util.verify(pubKey, SRC_DATA, sign);
+            sign = SM2Util.sign(priKey, SRC_DATA);
+            flag = SM2Util.verify(pubKey, SRC_DATA, sign);
             if (!flag) {
                 Assert.fail("verify failed");
             }
         } catch (Exception ex) {
             ex.printStackTrace();
             Assert.fail();
-        }
-    }
-
-    private void writeFile(String filePath, byte[] data) throws IOException {
-        RandomAccessFile raf = null;
-        try {
-            raf = new RandomAccessFile(filePath, "rw");
-            raf.write(data);
-        } finally {
-            if (raf != null) {
-                raf.close();
-            }
         }
     }
 }

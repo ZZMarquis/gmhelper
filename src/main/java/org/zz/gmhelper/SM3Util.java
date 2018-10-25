@@ -6,7 +6,7 @@ import org.bouncycastle.crypto.params.KeyParameter;
 
 import java.util.Arrays;
 
-public class Sm3Util extends GmBaseUtil {
+public class SM3Util extends GMBaseUtil {
 
     public static byte[] hash(byte[] srcData) {
         SM3Digest digest = new SM3Digest();

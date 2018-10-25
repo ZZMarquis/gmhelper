@@ -9,11 +9,10 @@ import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
-import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
-import org.zz.gmhelper.Sm2Util;
+import org.zz.gmhelper.SM2Util;
 
 import java.security.KeyPair;
 import java.security.PrivateKey;
@@ -21,7 +20,7 @@ import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 
-public class Sm2X509CertMaker {
+public class SM2X509CertMaker {
     public static final String SIGN_ALGO_SM3WITHSM2 = "SM3withSM2";
 
     private long certExpire;
@@ -36,7 +35,7 @@ public class Sm2X509CertMaker {
      * @param issuer        证书颁发者信息
      * @param snAllocator   维护/分配证书序列号的实例，证书序列号应该递增且不重复
      */
-    public Sm2X509CertMaker(KeyPair issuerKeyPair, long certExpire, X500Name issuer, CertSNAllocator snAllocator) {
+    public SM2X509CertMaker(KeyPair issuerKeyPair, long certExpire, X500Name issuer, CertSNAllocator snAllocator) {
         this.issuerKeyPair = issuerKeyPair;
         this.certExpire = certExpire;
         this.issuerDN = issuer;
@@ -60,7 +59,7 @@ public class Sm2X509CertMaker {
     public X509Certificate makeCertificate(boolean isCA, KeyUsage keyUsage, byte[] csr)
         throws Exception {
         PKCS10CertificationRequest request = new PKCS10CertificationRequest(csr);
-        PublicKey subPub = Sm2Util.convertPublicKey(request.getSubjectPublicKeyInfo());
+        PublicKey subPub = SM2Util.convertPublicKey(request.getSubjectPublicKeyInfo());
         PrivateKey issPriv = issuerKeyPair.getPrivate();
         PublicKey issPub = issuerKeyPair.getPublic();
 

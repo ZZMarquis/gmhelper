@@ -21,7 +21,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 
-public class Sm2PfxMaker {
+public class SM2PfxMaker {
 
     /**
      * @param privKey 用户私钥
