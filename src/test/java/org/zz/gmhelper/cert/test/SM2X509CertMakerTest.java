@@ -29,7 +29,7 @@ import java.security.NoSuchProviderException;
 import java.security.Security;
 import java.security.cert.X509Certificate;
 
-public class SM2CertMakerTest {
+public class SM2X509CertMakerTest {
 
     static {
         Security.addProvider(new BouncyCastleProvider());
@@ -44,7 +44,8 @@ public class SM2CertMakerTest {
                 (BCECPublicKey) subKP.getPublic());
             byte[] csr = CommonUtil.createCSR(subDN, sm2SubPub, subKP.getPrivate(),
                 SM2X509CertMaker.SIGN_ALGO_SM3WITHSM2).getEncoded();
-            savePriKey((BCECPrivateKey) subKP.getPrivate(), (BCECPublicKey) subKP.getPublic());
+            savePriKey("D://test.sm2.pri", (BCECPrivateKey) subKP.getPrivate(),
+                (BCECPublicKey) subKP.getPublic());
             SM2X509CertMaker certMaker = buildCertMaker();
             X509Certificate cert = certMaker.makeCertificate(false,
                 new KeyUsage(KeyUsage.digitalSignature | KeyUsage.dataEncipherment), csr);
@@ -55,11 +56,11 @@ public class SM2CertMakerTest {
         }
     }
 
-    private void savePriKey(BCECPrivateKey priKey, BCECPublicKey pubKey) throws IOException {
+    public static void savePriKey(String filePath, BCECPrivateKey priKey, BCECPublicKey pubKey) throws IOException {
         ECPrivateKeyParameters priKeyParam = SM2Util.convertPrivateKey(priKey);
         ECPublicKeyParameters pubKeyParam = SM2Util.convertPublicKey(pubKey);
         byte[] derPriKey = BCECUtil.convertECPrivateKeyToSEC1(priKeyParam, pubKeyParam);
-        FileUtil.writeFile("D://test.sm2.pri", derPriKey);
+        FileUtil.writeFile(filePath, derPriKey);
     }
 
     public static X500Name buildSubjectDN() {
@@ -71,14 +72,18 @@ public class SM2CertMakerTest {
         return builder.build();
     }
 
-    public static SM2X509CertMaker buildCertMaker() throws InvalidAlgorithmParameterException,
-        NoSuchAlgorithmException, NoSuchProviderException, InvalidX500NameException {
+    public static X500Name buildRootCADN() {
         X500NameBuilder builder = new X500NameBuilder(BCStyle.INSTANCE);
         builder.addRDN(BCStyle.CN, "ZZ Root CA");
         builder.addRDN(BCStyle.C, "CN");
         builder.addRDN(BCStyle.O, "org.zz");
         builder.addRDN(BCStyle.OU, "org.zz");
-        X500Name issuerName = builder.build();
+        return builder.build();
+    }
+
+    public static SM2X509CertMaker buildCertMaker() throws InvalidAlgorithmParameterException,
+        NoSuchAlgorithmException, NoSuchProviderException, InvalidX500NameException {
+        X500Name issuerName = buildRootCADN();
         KeyPair issKP = SM2Util.generateBCECKeyPair();
         long certExpire = 20L * 365 * 24 * 60 * 60 * 1000; // 20年
         CertSNAllocator snAllocator = new FileSNAllocator(); // 实际应用中可能需要使用数据库来维护证书序列号

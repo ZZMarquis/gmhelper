@@ -31,6 +31,22 @@ public class SM2CertUtil {
             BouncyCastleProvider.CONFIGURATION);
     }
 
+    /**
+     * 校验证书
+     *
+     * @param issuerPubKey 从颁发者CA证书中提取出来的公钥
+     * @param cert         待校验的证书
+     * @return
+     */
+    public static boolean verifyCertificate(BCECPublicKey issuerPubKey, X509Certificate cert) {
+        try {
+            cert.verify(issuerPubKey, BouncyCastleProvider.PROVIDER_NAME);
+        } catch (Exception ex) {
+            return false;
+        }
+        return true;
+    }
+
     public static X509Certificate getX509Certificate(String certFilePath) throws IOException, CertificateException,
         NoSuchProviderException {
         InputStream is = null;

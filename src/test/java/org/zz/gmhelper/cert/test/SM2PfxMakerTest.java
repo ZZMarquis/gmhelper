@@ -30,12 +30,12 @@ public class SM2PfxMakerTest {
     public void testMakePfx() {
         try {
             KeyPair subKP = SM2Util.generateBCECKeyPair();
-            X500Name subDN = SM2CertMakerTest.buildSubjectDN();
+            X500Name subDN = SM2X509CertMakerTest.buildSubjectDN();
             SM2PublicKey sm2SubPub = new SM2PublicKey(subKP.getPublic().getAlgorithm(),
                 (BCECPublicKey) subKP.getPublic());
             byte[] csr = CommonUtil.createCSR(subDN, sm2SubPub, subKP.getPrivate(),
                 SM2X509CertMaker.SIGN_ALGO_SM3WITHSM2).getEncoded();
-            SM2X509CertMaker certMaker = SM2CertMakerTest.buildCertMaker();
+            SM2X509CertMaker certMaker = SM2X509CertMakerTest.buildCertMaker();
             X509Certificate cert = certMaker.makeCertificate(false,
                 new KeyUsage(KeyUsage.digitalSignature | KeyUsage.dataEncipherment), csr);
 

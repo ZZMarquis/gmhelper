@@ -27,10 +27,12 @@ public class SM2X509CertMaker {
     private X500Name issuerDN;
     private CertSNAllocator snAllocator;
     private KeyPair issuerKeyPair;
-    private JcaContentSignerBuilder contentSignerBuilder;
 
     /**
-     * @param issuerKeyPair 证书颁发者的密钥对
+     * @param issuerKeyPair 证书颁发者的密钥对。
+     *                      其实一般的CA的私钥都是要严格保护的。
+     *                      一般CA的私钥都会放在加密卡/加密机里，证书的签名由加密卡/加密机完成。
+     *                      这里仅是为了演示BC库签发证书的用法，所以暂时不作太多要求。
      * @param certExpire    证书有效时间，单位毫秒
      * @param issuer        证书颁发者信息
      * @param snAllocator   维护/分配证书序列号的实例，证书序列号应该递增且不重复
@@ -40,17 +42,10 @@ public class SM2X509CertMaker {
         this.certExpire = certExpire;
         this.issuerDN = issuer;
         this.snAllocator = snAllocator;
-
-        if (issuerKeyPair.getPublic().getAlgorithm().equals("EC")) {
-            this.contentSignerBuilder = new JcaContentSignerBuilder(SIGN_ALGO_SM3WITHSM2);
-            this.contentSignerBuilder.setProvider(BouncyCastleProvider.PROVIDER_NAME);
-        } else {
-            throw new RuntimeException("Unsupported PublicKey Algorithm:" + issuerKeyPair.getPublic().getAlgorithm());
-        }
     }
 
     /**
-     * @param isCA     是否是颁发给中级CA的证书
+     * @param isCA     是否是颁发给CA的证书
      * @param keyUsage 证书用途
      * @param csr      CSR
      * @return
