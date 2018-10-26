@@ -168,8 +168,8 @@ public class BCECUtil {
 
     /**
      * 将ECC私钥转换为SEC1标准的字节流
-     * openssl d2i_ECPrivateKey函数要求的DER编码的私钥也是PKCS1标准的，
-     * 这个工具函数的主要目的就是为了能生成一个openssl可以“识别”的ECC私钥.
+     * openssl d2i_ECPrivateKey函数要求的DER编码的私钥也是SEC1标准的，
+     * 这个工具函数的主要目的就是为了能生成一个openssl可以直接“识别”的ECC私钥.
      * 相对RSA私钥的PKCS1标准，ECC私钥的标准为SEC1
      *
      * @param priKey
@@ -202,15 +202,32 @@ public class BCECUtil {
         X962Parameters params = getDomainParametersFromName(SM2Util.JDK_EC_SPEC, false);
         ASN1OctetString privKey = new DEROctetString(sec1Key);
         ASN1EncodableVector v = new ASN1EncodableVector();
-        v.add(new ASN1Integer(0));
-        v.add(new AlgorithmIdentifier(X9ObjectIdentifiers.id_ecPublicKey, params));
+        v.add(new ASN1Integer(0)); //版本号
+        v.add(new AlgorithmIdentifier(X9ObjectIdentifiers.id_ecPublicKey, params)); //算法标识
         v.add(privKey);
         DERSequence ds = new DERSequence(v);
         return ds.getEncoded(ASN1Encoding.DER);
     }
 
     /**
-     * 将SEC1标准的私钥字节流转为私钥对象
+     * 将SEC1标准的私钥字节流转为BCECPrivateKey对象
+     *
+     * @param sec1Key
+     * @return
+     * @throws NoSuchAlgorithmException
+     * @throws NoSuchProviderException
+     * @throws InvalidKeySpecException
+     * @throws IOException
+     */
+    public static BCECPrivateKey convertSEC1ToBCECPrivateKey(byte[] sec1Key)
+        throws NoSuchAlgorithmException, NoSuchProviderException, InvalidKeySpecException, IOException {
+        PKCS8EncodedKeySpec peks = new PKCS8EncodedKeySpec(convertECPrivateKeySEC1ToPKCS8(sec1Key));
+        KeyFactory kf = KeyFactory.getInstance(ALGO_NAME_EC, BouncyCastleProvider.PROVIDER_NAME);
+        return (BCECPrivateKey) kf.generatePrivate(peks);
+    }
+
+    /**
+     * 将SEC1标准的私钥字节流转为ECPrivateKeyParameters对象
      * openssl i2d_ECPrivateKey函数生成的DER编码的ecc私钥是：SEC1标准的、带有EC_GROUP、带有公钥的，
      * 这个工具函数的主要目的就是为了使Java程序能够“识别”openssl生成的ECC私钥
      *
@@ -222,14 +239,8 @@ public class BCECUtil {
      */
     public static ECPrivateKeyParameters convertSEC1ToECPrivateKey(byte[] sec1Key)
         throws NoSuchAlgorithmException, NoSuchProviderException, InvalidKeySpecException, IOException {
-        PKCS8EncodedKeySpec peks = new PKCS8EncodedKeySpec(convertECPrivateKeySEC1ToPKCS8(sec1Key));
-        KeyFactory kf = KeyFactory.getInstance(ALGO_NAME_EC, BouncyCastleProvider.PROVIDER_NAME);
-        BCECPrivateKey privateKey = (BCECPrivateKey) kf.generatePrivate(peks);
-        ECParameterSpec ecParameterSpec = privateKey.getParameters();
-        ECDomainParameters ecDomainParameters = new ECDomainParameters(ecParameterSpec.getCurve(),
-            ecParameterSpec.getG(), ecParameterSpec.getN(), ecParameterSpec.getH());
-        ECPrivateKeyParameters priKey = new ECPrivateKeyParameters(privateKey.getD(), ecDomainParameters);
-        return priKey;
+        BCECPrivateKey privateKey = convertSEC1ToBCECPrivateKey(sec1Key);
+        return SM2Util.convertPrivateKey(privateKey);
     }
 
     /**
@@ -286,7 +297,7 @@ public class BCECUtil {
     }
 
     /**
-     * copy form BC
+     * copy from BC
      *
      * @param genSpec
      * @return
@@ -296,7 +307,7 @@ public class BCECUtil {
     }
 
     /**
-     * copy form BC
+     * copy from BC
      *
      * @param curveName
      * @return
@@ -322,7 +333,7 @@ public class BCECUtil {
     }
 
     /**
-     * copy form BC
+     * copy from BC
      *
      * @param ecSpec
      * @param withCompression
