@@ -36,6 +36,9 @@ public class SM2UtilTest extends GMBaseTest {
 
             byte[] sign = SM2Util.sign(priKey, WITH_ID, SRC_DATA);
             System.out.println("SM2 sign with withId result:\n" + ByteUtils.toHexString(sign));
+            byte[] rawSign = SM2Util.decodeDERSM2Sign(sign);
+            sign = SM2Util.encodeSM2SignToDER(rawSign);
+            System.out.println("SM2 sign with withId result:\n" + ByteUtils.toHexString(sign));
             boolean flag = SM2Util.verify(pubKey, WITH_ID, SRC_DATA, sign);
             if (!flag) {
                 Assert.fail("verify failed");

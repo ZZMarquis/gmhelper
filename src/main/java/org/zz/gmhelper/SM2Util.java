@@ -1,6 +1,7 @@
 package org.zz.gmhelper;
 
 import org.bouncycastle.asn1.ASN1Encodable;
+import org.bouncycastle.asn1.ASN1EncodableVector;
 import org.bouncycastle.asn1.ASN1Encoding;
 import org.bouncycastle.asn1.ASN1Integer;
 import org.bouncycastle.asn1.ASN1Sequence;
@@ -282,17 +283,13 @@ public class SM2Util extends GMBaseUtil {
      * @param priKeyParameters ECC私钥
      * @param srcData          源数据
      * @return 签名
-     * @throws NoSuchAlgorithmException
-     * @throws NoSuchProviderException
      * @throws CryptoException
      */
-    public static byte[] sign(ECPrivateKeyParameters priKeyParameters, byte[] srcData)
-        throws NoSuchAlgorithmException, NoSuchProviderException, CryptoException {
+    public static byte[] sign(ECPrivateKeyParameters priKeyParameters, byte[] srcData) throws CryptoException {
         return sign(priKeyParameters, null, srcData);
     }
 
-    public static byte[] sign(BCECPrivateKey priKey, byte[] withId, byte[] srcData) throws NoSuchAlgorithmException,
-        NoSuchProviderException, CryptoException {
+    public static byte[] sign(BCECPrivateKey priKey, byte[] withId, byte[] srcData) throws CryptoException {
         ECPrivateKeyParameters priKeyParameters = convertPrivateKey(priKey);
         return sign(priKeyParameters, withId, srcData);
     }
@@ -304,12 +301,10 @@ public class SM2Util extends GMBaseUtil {
      * @param withId           可以为null，若为null，则默认withId为字节数组:"1234567812345678".getBytes()
      * @param srcData          源数据
      * @return 签名
-     * @throws NoSuchAlgorithmException
-     * @throws NoSuchProviderException
      * @throws CryptoException
      */
     public static byte[] sign(ECPrivateKeyParameters priKeyParameters, byte[] withId, byte[] srcData)
-        throws NoSuchAlgorithmException, NoSuchProviderException, CryptoException {
+        throws CryptoException {
         SM2Signer signer = new SM2Signer();
         CipherParameters param = null;
         ParametersWithRandom pwr = new ParametersWithRandom(priKeyParameters, new SecureRandom());
@@ -321,6 +316,40 @@ public class SM2Util extends GMBaseUtil {
         signer.init(true, param);
         signer.update(srcData, 0, srcData.length);
         return signer.generateSignature();
+    }
+
+    /**
+     * 将DER编码的SM2签名解析成64字节的纯R+S字节流
+     * @param derSign
+     * @return
+     */
+    public static byte[] decodeDERSM2Sign(byte[] derSign) {
+        ASN1Sequence as = DERSequence.getInstance(derSign);
+        byte[] rBytes = ((ASN1Integer) as.getObjectAt(0)).getValue().toByteArray();
+        byte[] sBytes = ((ASN1Integer) as.getObjectAt(1)).getValue().toByteArray();
+        //由于大数的补0规则，所以可能会出现33个字节的情况，要修正回32个字节
+        rBytes = fixTo32Bytes(rBytes);
+        sBytes = fixTo32Bytes(sBytes);
+        byte[] rawSign = new byte[rBytes.length + sBytes.length];
+        System.arraycopy(rBytes, 0, rawSign, 0, rBytes.length);
+        System.arraycopy(sBytes, 0, rawSign, rBytes.length, sBytes.length);
+        return rawSign;
+    }
+
+    /**
+     * 把64字节的纯R+S字节流转换成DER编码字节流
+     * @param rawSign
+     * @return
+     * @throws IOException
+     */
+    public static byte[] encodeSM2SignToDER(byte[] rawSign) throws IOException {
+        //要保证大数是正数
+        BigInteger r = new BigInteger(1, extractBytes(rawSign, 0, 32));
+        BigInteger s = new BigInteger(1, extractBytes(rawSign, 32, 32));
+        ASN1EncodableVector v = new ASN1EncodableVector();
+        v.add(new ASN1Integer(r));
+        v.add(new ASN1Integer(s));
+        return new DERSequence(v).getEncoded(ASN1Encoding.DER);
     }
 
     public static boolean verify(BCECPublicKey pubKey, byte[] srcData, byte[] sign) {
@@ -366,5 +395,26 @@ public class SM2Util extends GMBaseUtil {
         signer.init(false, param);
         signer.update(srcData, 0, srcData.length);
         return signer.verifySignature(sign);
+    }
+
+    private static byte[] extractBytes(byte[] src, int offset, int length) {
+        byte[] result = new byte[length];
+        System.arraycopy(src, offset, result, 0, result.length);
+        return result;
+    }
+
+    private static byte[] fixTo32Bytes(byte[] src) {
+        final int fixLen = 32;
+        if (src.length == fixLen) {
+            return src;
+        }
+
+        byte[] result = new byte[fixLen];
+        if (src.length > fixLen) {
+            System.arraycopy(src, src.length - result.length, result, 0, result.length);
+        } else {
+            System.arraycopy(src, result.length - src.length, result, 0, src.length);
+        }
+        return result;
     }
 }
