@@ -13,13 +13,6 @@ public class FileSNAllocator implements CertSNAllocator {
     snFilePath = loader.getResource(FileSNAllocator.SN_FILENAME).getPath();
   }
 
-  @Override
-  public synchronized BigInteger incrementAndGet() throws Exception {
-    BigInteger sn = FileSNAllocator.readSN();
-    FileSNAllocator.writeSN(sn.add(BigInteger.ONE));
-    return sn;
-  }
-
   private static BigInteger readSN() throws IOException {
     RandomAccessFile raf = null;
     try {
@@ -45,5 +38,12 @@ public class FileSNAllocator implements CertSNAllocator {
         raf.close();
       }
     }
+  }
+
+  @Override
+  public synchronized BigInteger incrementAndGet() throws Exception {
+    BigInteger sn = FileSNAllocator.readSN();
+    FileSNAllocator.writeSN(sn.add(BigInteger.ONE));
+    return sn;
   }
 }

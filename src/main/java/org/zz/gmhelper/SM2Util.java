@@ -30,6 +30,8 @@ public class SM2Util extends GMBaseUtil {
 
   public static final BigInteger SM2_ECC_N = SM2Util.CURVE.getOrder();
   public static final BigInteger SM2_ECC_H = SM2Util.CURVE.getCofactor();
+  public static final ECDomainParameters DOMAIN_PARAMS =
+      new ECDomainParameters(SM2Util.CURVE, SM2Util.G_POINT, SM2Util.SM2_ECC_N, SM2Util.SM2_ECC_H);
   private static final BigInteger SM2_ECC_P = SM2Util.CURVE.getQ();
   private static final BigInteger SM2_ECC_A = SM2Util.CURVE.getA().toBigInteger();
   private static final BigInteger SM2_ECC_B = SM2Util.CURVE.getB().toBigInteger();
@@ -39,8 +41,6 @@ public class SM2Util extends GMBaseUtil {
       new BigInteger("BC3736A2F4F6779C59BDCEE36B692153D0A9877CC62A474002DF32E52139F0A0", 16);
   public static final ECPoint G_POINT =
       SM2Util.CURVE.createPoint(SM2Util.SM2_ECC_GX, SM2Util.SM2_ECC_GY);
-  public static final ECDomainParameters DOMAIN_PARAMS =
-      new ECDomainParameters(SM2Util.CURVE, SM2Util.G_POINT, SM2Util.SM2_ECC_N, SM2Util.SM2_ECC_H);
   //////////////////////////////////////////////////////////////////////////////////////
   private static final EllipticCurve JDK_CURVE =
       new EllipticCurve(new ECFieldFp(SM2Util.SM2_ECC_P), SM2Util.SM2_ECC_A, SM2Util.SM2_ECC_B);

@@ -43,6 +43,17 @@ public class SM2X509CertMaker {
     this.snAllocator = snAllocator;
   }
 
+  private static JcaContentSignerBuilder makeContentSignerBuilder(PublicKey issPub)
+      throws Exception {
+    if (issPub.getAlgorithm().equals("EC")) {
+      JcaContentSignerBuilder contentSignerBuilder =
+          new JcaContentSignerBuilder(SM2X509CertMaker.SIGN_ALGO_SM3WITHSM2);
+      contentSignerBuilder.setProvider(BouncyCastleProvider.PROVIDER_NAME);
+      return contentSignerBuilder;
+    }
+    throw new Exception("Unsupported PublicKey Algorithm:" + issPub.getAlgorithm());
+  }
+
   /**
    * @param isCA 是否是颁发给CA的证书
    * @param keyUsage 证书用途
@@ -88,16 +99,5 @@ public class SM2X509CertMaker {
     cert.verify(issPub);
 
     return cert;
-  }
-
-  private static JcaContentSignerBuilder makeContentSignerBuilder(PublicKey issPub)
-      throws Exception {
-    if (issPub.getAlgorithm().equals("EC")) {
-      JcaContentSignerBuilder contentSignerBuilder =
-          new JcaContentSignerBuilder(SM2X509CertMaker.SIGN_ALGO_SM3WITHSM2);
-      contentSignerBuilder.setProvider(BouncyCastleProvider.PROVIDER_NAME);
-      return contentSignerBuilder;
-    }
-    throw new Exception("Unsupported PublicKey Algorithm:" + issPub.getAlgorithm());
   }
 }
