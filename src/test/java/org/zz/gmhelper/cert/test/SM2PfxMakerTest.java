@@ -22,32 +22,35 @@ import java.security.Security;
 import java.security.cert.X509Certificate;
 
 public class SM2PfxMakerTest {
-    static {
-        Security.addProvider(new BouncyCastleProvider());
-    }
+  static {
+    Security.addProvider(new BouncyCastleProvider());
+  }
 
-    @Test
-    public void testMakePfx() {
-        try {
-            KeyPair subKP = SM2Util.generateBCECKeyPair();
-            X500Name subDN = SM2X509CertMakerTest.buildSubjectDN();
-            SM2PublicKey sm2SubPub = new SM2PublicKey(subKP.getPublic().getAlgorithm(),
-                (BCECPublicKey) subKP.getPublic());
-            byte[] csr = CommonUtil.createCSR(subDN, sm2SubPub, subKP.getPrivate(),
-                SM2X509CertMaker.SIGN_ALGO_SM3WITHSM2).getEncoded();
-            SM2X509CertMaker certMaker = SM2X509CertMakerTest.buildCertMaker();
-            X509Certificate cert = certMaker.makeCertificate(false,
-                new KeyUsage(KeyUsage.digitalSignature | KeyUsage.dataEncipherment), csr);
+  @Test
+  public void testMakePfx() {
+    try {
+      KeyPair subKP = SM2Util.generateBCECKeyPair();
+      X500Name subDN = SM2X509CertMakerTest.buildSubjectDN();
+      SM2PublicKey sm2SubPub =
+          new SM2PublicKey(subKP.getPublic().getAlgorithm(), (BCECPublicKey) subKP.getPublic());
+      byte[] csr =
+          CommonUtil.createCSR(
+                  subDN, sm2SubPub, subKP.getPrivate(), SM2X509CertMaker.SIGN_ALGO_SM3WITHSM2)
+              .getEncoded();
+      SM2X509CertMaker certMaker = SM2X509CertMakerTest.buildCertMaker();
+      X509Certificate cert =
+          certMaker.makeCertificate(
+              false, new KeyUsage(KeyUsage.digitalSignature | KeyUsage.dataEncipherment), csr);
 
-            SM2PfxMaker pfxMaker = new SM2PfxMaker();
-            PKCS10CertificationRequest request = new PKCS10CertificationRequest(csr);
-            PublicKey subPub = SM2Util.convertPublicKey(request.getSubjectPublicKeyInfo());
-            PKCS12PfxPdu pfx = pfxMaker.makePfx(subKP.getPrivate(), subPub, cert, "12345678");
-            byte[] pfxDER = pfx.getEncoded(ASN1Encoding.DER);
-            FileUtil.writeFile("D:/test.pfx", pfxDER);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            Assert.fail();
-        }
+      SM2PfxMaker pfxMaker = new SM2PfxMaker();
+      PKCS10CertificationRequest request = new PKCS10CertificationRequest(csr);
+      PublicKey subPub = SM2Util.convertPublicKey(request.getSubjectPublicKeyInfo());
+      PKCS12PfxPdu pfx = pfxMaker.makePfx(subKP.getPrivate(), subPub, cert, "12345678");
+      byte[] pfxDER = pfx.getEncoded(ASN1Encoding.DER);
+      FileUtil.writeFile("D:/test.pfx", pfxDER);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+      Assert.fail();
     }
+  }
 }

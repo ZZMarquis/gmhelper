@@ -28,11 +28,11 @@ public class SM2Util extends GMBaseUtil {
   /** 以下为SM2推荐曲线参数 */
   public static final SM2P256V1Curve CURVE = new SM2P256V1Curve();
 
+  public static final BigInteger SM2_ECC_N = SM2Util.CURVE.getOrder();
+  public static final BigInteger SM2_ECC_H = SM2Util.CURVE.getCofactor();
   private static final BigInteger SM2_ECC_P = SM2Util.CURVE.getQ();
   private static final BigInteger SM2_ECC_A = SM2Util.CURVE.getA().toBigInteger();
   private static final BigInteger SM2_ECC_B = SM2Util.CURVE.getB().toBigInteger();
-  public static final BigInteger SM2_ECC_N = SM2Util.CURVE.getOrder();
-  public static final BigInteger SM2_ECC_H = SM2Util.CURVE.getCofactor();
   private static final BigInteger SM2_ECC_GX =
       new BigInteger("32C4AE2C1F1981195F9904466A39C9948FE30BBFF2660BE1715A4589334C74C7", 16);
   private static final BigInteger SM2_ECC_GY =
@@ -42,7 +42,6 @@ public class SM2Util extends GMBaseUtil {
   public static final ECDomainParameters DOMAIN_PARAMS =
       new ECDomainParameters(SM2Util.CURVE, SM2Util.G_POINT, SM2Util.SM2_ECC_N, SM2Util.SM2_ECC_H);
   //////////////////////////////////////////////////////////////////////////////////////
-
   private static final EllipticCurve JDK_CURVE =
       new EllipticCurve(new ECFieldFp(SM2Util.SM2_ECC_P), SM2Util.SM2_ECC_A, SM2Util.SM2_ECC_B);
   private static final java.security.spec.ECPoint JDK_G_POINT =
