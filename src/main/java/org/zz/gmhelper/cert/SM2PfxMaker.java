@@ -29,7 +29,7 @@ public class SM2PfxMaker {
    * @throws IOException
    * @throws PKCSException
    */
-  public PKCS12PfxPdu makePfx(
+  public static PKCS12PfxPdu makePfx(
       PrivateKey privKey, PublicKey pubKey, X509Certificate[] chain, String passwd)
       throws NoSuchAlgorithmException, IOException, PKCSException {
     JcaX509ExtensionUtils extUtils = new JcaX509ExtensionUtils();
@@ -86,7 +86,7 @@ public class SM2PfxMaker {
    * @throws IOException
    * @throws PKCSException
    */
-  public PKCS12PfxPdu makePfx(
+  public static PKCS12PfxPdu makePfx(
       PrivateKey privKey, PublicKey pubKey, X509Certificate cert, String passwd)
       throws NoSuchAlgorithmException, IOException, PKCSException {
     JcaX509ExtensionUtils extUtils = new JcaX509ExtensionUtils();

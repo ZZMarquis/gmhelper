@@ -37,19 +37,19 @@ public class SM2UtilTest extends GMBaseTest {
       System.out.println(
           "Pub Point Hex:" + ByteUtils.toHexString(pubKey.getQ().getEncoded(false)).toUpperCase());
 
-      byte[] sign = SM2Util.sign(priKey, WITH_ID, SRC_DATA);
+      byte[] sign = SM2Util.sign(priKey, GMBaseTest.WITH_ID, GMBaseTest.SRC_DATA);
       System.out.println("SM2 sign with withId result:\n" + ByteUtils.toHexString(sign));
       byte[] rawSign = SM2Util.decodeDERSM2Sign(sign);
       sign = SM2Util.encodeSM2SignToDER(rawSign);
       System.out.println("SM2 sign with withId result:\n" + ByteUtils.toHexString(sign));
-      boolean flag = SM2Util.verify(pubKey, WITH_ID, SRC_DATA, sign);
+      boolean flag = SM2Util.verify(pubKey, GMBaseTest.WITH_ID, GMBaseTest.SRC_DATA, sign);
       if (!flag) {
         Assert.fail("verify failed");
       }
 
-      sign = SM2Util.sign(priKey, SRC_DATA);
+      sign = SM2Util.sign(priKey, GMBaseTest.SRC_DATA);
       System.out.println("SM2 sign without withId result:\n" + ByteUtils.toHexString(sign));
-      flag = SM2Util.verify(pubKey, SRC_DATA, sign);
+      flag = SM2Util.verify(pubKey, GMBaseTest.SRC_DATA, sign);
       if (!flag) {
         Assert.fail("verify failed");
       }
@@ -77,11 +77,11 @@ public class SM2UtilTest extends GMBaseTest {
       System.out.println(
           "Pub Point Hex:" + ByteUtils.toHexString(pubKey.getQ().getEncoded(false)).toUpperCase());
 
-      byte[] encryptedData = SM2Util.encrypt(pubKey, SRC_DATA);
+      byte[] encryptedData = SM2Util.encrypt(pubKey, GMBaseTest.SRC_DATA);
       System.out.println("SM2 encrypt result:\n" + ByteUtils.toHexString(encryptedData));
       byte[] decryptedData = SM2Util.decrypt(priKey, encryptedData);
       System.out.println("SM2 decrypt result:\n" + ByteUtils.toHexString(decryptedData));
-      if (!Arrays.equals(decryptedData, SRC_DATA)) {
+      if (!Arrays.equals(decryptedData, GMBaseTest.SRC_DATA)) {
         Assert.fail();
       }
     } catch (Exception ex) {
@@ -194,13 +194,13 @@ public class SM2UtilTest extends GMBaseTest {
       ECPrivateKeyParameters priKey = (ECPrivateKeyParameters) keyPair.getPrivate();
       ECPublicKeyParameters pubKey = (ECPublicKeyParameters) keyPair.getPublic();
 
-      byte[] encryptedData = SM2Util.encrypt(pubKey, SRC_DATA);
+      byte[] encryptedData = SM2Util.encrypt(pubKey, GMBaseTest.SRC_DATA);
 
       byte[] derCipher = SM2Util.encodeSM2CipherToDER(encryptedData);
       FileUtil.writeFile("derCipher.dat", derCipher);
 
       byte[] decryptedData = SM2Util.decrypt(priKey, SM2Util.decodeDERSM2Cipher(derCipher));
-      if (!Arrays.equals(decryptedData, SRC_DATA)) {
+      if (!Arrays.equals(decryptedData, GMBaseTest.SRC_DATA)) {
         Assert.fail();
       }
 
@@ -219,14 +219,14 @@ public class SM2UtilTest extends GMBaseTest {
           SM2Util.convertPrivateKey((BCECPrivateKey) keyPair.getPrivate());
       ECPublicKeyParameters pubKey = SM2Util.convertPublicKey((BCECPublicKey) keyPair.getPublic());
 
-      byte[] sign = SM2Util.sign(priKey, WITH_ID, SRC_DATA);
-      boolean flag = SM2Util.verify(pubKey, WITH_ID, SRC_DATA, sign);
+      byte[] sign = SM2Util.sign(priKey, GMBaseTest.WITH_ID, GMBaseTest.SRC_DATA);
+      boolean flag = SM2Util.verify(pubKey, GMBaseTest.WITH_ID, GMBaseTest.SRC_DATA, sign);
       if (!flag) {
         Assert.fail("verify failed");
       }
 
-      sign = SM2Util.sign(priKey, SRC_DATA);
-      flag = SM2Util.verify(pubKey, SRC_DATA, sign);
+      sign = SM2Util.sign(priKey, GMBaseTest.SRC_DATA);
+      flag = SM2Util.verify(pubKey, GMBaseTest.SRC_DATA, sign);
       if (!flag) {
         Assert.fail("verify failed");
       }

@@ -69,6 +69,6 @@ public class CommonUtil {
 
   public static AlgorithmIdentifier findDigestAlgorithmIdentifier(String algoName) {
     DefaultDigestAlgorithmIdentifierFinder digFinder = new DefaultDigestAlgorithmIdentifierFinder();
-    return digFinder.find(findSignatureAlgorithmIdentifier(algoName));
+    return digFinder.find(CommonUtil.findSignatureAlgorithmIdentifier(algoName));
   }
 }

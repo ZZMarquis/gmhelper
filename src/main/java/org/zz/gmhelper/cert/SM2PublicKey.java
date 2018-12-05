@@ -18,7 +18,7 @@ public class SM2PublicKey extends BCECPublicKey {
   public SM2PublicKey(String algorithm, BCECPublicKey key)
       throws NoSuchFieldException, IllegalAccessException {
     super(algorithm, key);
-    this.withCompression = false;
+    withCompression = false;
   }
 
   @Override
@@ -29,7 +29,8 @@ public class SM2PublicKey extends BCECPublicKey {
     // stored curve is null if ImplicitlyCa
     SubjectPublicKeyInfo info =
         new SubjectPublicKeyInfo(
-            new AlgorithmIdentifier(X9ObjectIdentifiers.id_ecPublicKey, ID_SM2_PUBKEY_PARAM),
+            new AlgorithmIdentifier(
+                X9ObjectIdentifiers.id_ecPublicKey, SM2PublicKey.ID_SM2_PUBKEY_PARAM),
             p.getOctets());
 
     return KeyUtil.getEncodedSubjectPublicKeyInfo(info);

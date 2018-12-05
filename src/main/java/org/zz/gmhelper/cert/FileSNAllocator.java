@@ -6,23 +6,24 @@ import java.math.BigInteger;
 
 public class FileSNAllocator implements CertSNAllocator {
   private static final String SN_FILENAME = "sn.dat";
-  private static String snFilePath;
+  private static final String snFilePath;
 
   static {
     ClassLoader loader = FileSNAllocator.class.getClassLoader();
-    snFilePath = loader.getResource(SN_FILENAME).getPath();
+    snFilePath = loader.getResource(FileSNAllocator.SN_FILENAME).getPath();
   }
 
+  @Override
   public synchronized BigInteger incrementAndGet() throws Exception {
-    BigInteger sn = readSN();
-    writeSN(sn.add(BigInteger.ONE));
+    BigInteger sn = FileSNAllocator.readSN();
+    FileSNAllocator.writeSN(sn.add(BigInteger.ONE));
     return sn;
   }
 
-  private BigInteger readSN() throws IOException {
+  private static BigInteger readSN() throws IOException {
     RandomAccessFile raf = null;
     try {
-      raf = new RandomAccessFile(snFilePath, "r");
+      raf = new RandomAccessFile(FileSNAllocator.snFilePath, "r");
       byte[] data = new byte[(int) raf.length()];
       raf.read(data);
       String snStr = new String(data);
@@ -34,10 +35,10 @@ public class FileSNAllocator implements CertSNAllocator {
     }
   }
 
-  private void writeSN(BigInteger sn) throws IOException {
+  private static void writeSN(BigInteger sn) throws IOException {
     RandomAccessFile raf = null;
     try {
-      raf = new RandomAccessFile(snFilePath, "rw");
+      raf = new RandomAccessFile(FileSNAllocator.snFilePath, "rw");
       raf.writeBytes(sn.toString(10));
     } finally {
       if (raf != null) {

@@ -17,8 +17,8 @@ public class SM3Util extends GMBaseUtil {
   }
 
   public static boolean verify(byte[] srcData, byte[] sm3Hash) {
-    byte[] newHash = hash(srcData);
-      return Arrays.equals(newHash, sm3Hash);
+    byte[] newHash = SM3Util.hash(srcData);
+    return Arrays.equals(newHash, sm3Hash);
   }
 
   public static byte[] hmac(byte[] key, byte[] srcData) {

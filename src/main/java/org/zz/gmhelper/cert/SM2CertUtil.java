@@ -47,7 +47,7 @@ public class SM2CertUtil {
     InputStream is = null;
     try {
       is = new FileInputStream(certFilePath);
-      return getX509Certificate(is);
+      return SM2CertUtil.getX509Certificate(is);
     } finally {
       if (is != null) {
         is.close();
@@ -58,7 +58,7 @@ public class SM2CertUtil {
   public static X509Certificate getX509Certificate(byte[] certBytes)
       throws CertificateException, NoSuchProviderException {
     ByteArrayInputStream bais = new ByteArrayInputStream(certBytes);
-    return getX509Certificate(bais);
+    return SM2CertUtil.getX509Certificate(bais);
   }
 
   public static X509Certificate getX509Certificate(InputStream is)
@@ -73,7 +73,7 @@ public class SM2CertUtil {
     InputStream is = null;
     try {
       is = new FileInputStream(certChainPath);
-      return getCertificateChain(is);
+      return SM2CertUtil.getCertificateChain(is);
     } finally {
       if (is != null) {
         is.close();
@@ -84,7 +84,7 @@ public class SM2CertUtil {
   public static CertPath getCertificateChain(byte[] certChainBytes)
       throws CertificateException, NoSuchProviderException {
     ByteArrayInputStream bais = new ByteArrayInputStream(certChainBytes);
-    return getCertificateChain(bais);
+    return SM2CertUtil.getCertificateChain(bais);
   }
 
   public static byte[] getCertificateChainBytes(CertPath certChain)

@@ -56,7 +56,7 @@ public class SM2X509CertMakerTest {
   public static SM2X509CertMaker buildCertMaker()
       throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException,
           InvalidX500NameException {
-    X500Name issuerName = buildRootCADN();
+    X500Name issuerName = SM2X509CertMakerTest.buildRootCADN();
     KeyPair issKP = SM2Util.generateBCECKeyPair();
     long certExpire = 20L * 365 * 24 * 60 * 60 * 1000; // 20年
     CertSNAllocator snAllocator = new FileSNAllocator(); // 实际应用中可能需要使用数据库来维护证书序列号
@@ -67,18 +67,18 @@ public class SM2X509CertMakerTest {
   public void testMakeCertificate() {
     try {
       KeyPair subKP = SM2Util.generateBCECKeyPair();
-      X500Name subDN = buildSubjectDN();
+      X500Name subDN = SM2X509CertMakerTest.buildSubjectDN();
       SM2PublicKey sm2SubPub =
           new SM2PublicKey(subKP.getPublic().getAlgorithm(), (BCECPublicKey) subKP.getPublic());
       byte[] csr =
           CommonUtil.createCSR(
                   subDN, sm2SubPub, subKP.getPrivate(), SM2X509CertMaker.SIGN_ALGO_SM3WITHSM2)
               .getEncoded();
-      savePriKey(
+      SM2X509CertMakerTest.savePriKey(
           "D://test.sm2.pri",
           (BCECPrivateKey) subKP.getPrivate(),
           (BCECPublicKey) subKP.getPublic());
-      SM2X509CertMaker certMaker = buildCertMaker();
+      SM2X509CertMaker certMaker = SM2X509CertMakerTest.buildCertMaker();
       X509Certificate cert =
           certMaker.makeCertificate(
               false, new KeyUsage(KeyUsage.digitalSignature | KeyUsage.dataEncipherment), csr);

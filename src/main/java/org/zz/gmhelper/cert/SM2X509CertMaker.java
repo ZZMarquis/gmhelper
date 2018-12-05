@@ -23,10 +23,10 @@ import java.util.Date;
 public class SM2X509CertMaker {
   public static final String SIGN_ALGO_SM3WITHSM2 = "SM3withSM2";
 
-  private long certExpire;
-  private X500Name issuerDN;
-  private CertSNAllocator snAllocator;
-  private KeyPair issuerKeyPair;
+  private final long certExpire;
+  private final X500Name issuerDN;
+  private final CertSNAllocator snAllocator;
+  private final KeyPair issuerKeyPair;
 
   /**
    * @param issuerKeyPair 证书颁发者的密钥对。 其实一般的CA的私钥都是要严格保护的。 一般CA的私钥都会放在加密卡/加密机里，证书的签名由加密卡/加密机完成。
@@ -39,7 +39,7 @@ public class SM2X509CertMaker {
       KeyPair issuerKeyPair, long certExpire, X500Name issuer, CertSNAllocator snAllocator) {
     this.issuerKeyPair = issuerKeyPair;
     this.certExpire = certExpire;
-    this.issuerDN = issuer;
+    issuerDN = issuer;
     this.snAllocator = snAllocator;
   }
 
@@ -78,7 +78,8 @@ public class SM2X509CertMaker {
     v3CertGen.addExtension(Extension.basicConstraints, false, new BasicConstraints(isCA));
     v3CertGen.addExtension(Extension.keyUsage, false, keyUsage);
 
-    JcaContentSignerBuilder contentSignerBuilder = makeContentSignerBuilder(issPub);
+    JcaContentSignerBuilder contentSignerBuilder =
+        SM2X509CertMaker.makeContentSignerBuilder(issPub);
     X509Certificate cert =
         new JcaX509CertificateConverter()
             .setProvider(BouncyCastleProvider.PROVIDER_NAME)
@@ -89,10 +90,11 @@ public class SM2X509CertMaker {
     return cert;
   }
 
-  private JcaContentSignerBuilder makeContentSignerBuilder(PublicKey issPub) throws Exception {
+  private static JcaContentSignerBuilder makeContentSignerBuilder(PublicKey issPub)
+      throws Exception {
     if (issPub.getAlgorithm().equals("EC")) {
       JcaContentSignerBuilder contentSignerBuilder =
-          new JcaContentSignerBuilder(SIGN_ALGO_SM3WITHSM2);
+          new JcaContentSignerBuilder(SM2X509CertMaker.SIGN_ALGO_SM3WITHSM2);
       contentSignerBuilder.setProvider(BouncyCastleProvider.PROVIDER_NAME);
       return contentSignerBuilder;
     }

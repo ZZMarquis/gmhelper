@@ -45,7 +45,7 @@ public class SM2PfxMakerTest {
       SM2PfxMaker pfxMaker = new SM2PfxMaker();
       PKCS10CertificationRequest request = new PKCS10CertificationRequest(csr);
       PublicKey subPub = SM2Util.convertPublicKey(request.getSubjectPublicKeyInfo());
-      PKCS12PfxPdu pfx = pfxMaker.makePfx(subKP.getPrivate(), subPub, cert, "12345678");
+      PKCS12PfxPdu pfx = SM2PfxMaker.makePfx(subKP.getPrivate(), subPub, cert, "12345678");
       byte[] pfxDER = pfx.getEncoded(ASN1Encoding.DER);
       FileUtil.writeFile("D:/test.pfx", pfxDER);
     } catch (Exception ex) {

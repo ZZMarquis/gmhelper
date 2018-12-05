@@ -43,23 +43,23 @@ public class SM2KeyExchangeUtilTest {
       byte[] k1 =
           SM2KeyExchangeUtil.calculateKey(
               true,
-              KEY_BITS,
+              SM2KeyExchangeUtilTest.KEY_BITS,
               initiatorStaticPriv,
               initiatorEphemeralPriv,
-              INITIATOR_ID,
+              SM2KeyExchangeUtilTest.INITIATOR_ID,
               responderStaticPub,
               responderSEphemeralPub,
-              RESPONDER_ID);
+              SM2KeyExchangeUtilTest.RESPONDER_ID);
       byte[] k2 =
           SM2KeyExchangeUtil.calculateKey(
               false,
-              KEY_BITS,
+              SM2KeyExchangeUtilTest.KEY_BITS,
               responderStaticPriv,
               responderEphemeralPriv,
-              RESPONDER_ID,
+              SM2KeyExchangeUtilTest.RESPONDER_ID,
               initiatorStaticPub,
               initiatorSEphemeralPub,
-              INITIATOR_ID);
+              SM2KeyExchangeUtilTest.INITIATOR_ID);
 
       if (!Arrays.equals(k1, k2)) {
         Assert.fail();
@@ -99,27 +99,27 @@ public class SM2KeyExchangeUtilTest {
       SM2KeyExchangeUtil.ExchangeResult responderResult =
           SM2KeyExchangeUtil.calculateKeyWithConfirmation(
               false,
-              KEY_BITS,
+              SM2KeyExchangeUtilTest.KEY_BITS,
               null,
               responderStaticPriv,
               responderEphemeralPriv,
-              RESPONDER_ID,
+              SM2KeyExchangeUtilTest.RESPONDER_ID,
               initiatorStaticPub,
               initiatorSEphemeralPub,
-              INITIATOR_ID);
+              SM2KeyExchangeUtilTest.INITIATOR_ID);
 
       // 第三步发起方生成密钥和验证消息，并验证响应方的验证消息
       SM2KeyExchangeUtil.ExchangeResult initiatorResult =
           SM2KeyExchangeUtil.calculateKeyWithConfirmation(
               true,
-              KEY_BITS,
+              SM2KeyExchangeUtilTest.KEY_BITS,
               responderResult.getS1(),
               initiatorStaticPriv,
               initiatorEphemeralPriv,
-              INITIATOR_ID,
+              SM2KeyExchangeUtilTest.INITIATOR_ID,
               responderStaticPub,
               responderSEphemeralPub,
-              RESPONDER_ID);
+              SM2KeyExchangeUtilTest.RESPONDER_ID);
 
       // 第四步响应方验证发起方的验证消息
       if (!SM2KeyExchangeUtil.responderConfirm(responderResult.getS2(), initiatorResult.getS2())) {

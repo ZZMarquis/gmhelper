@@ -53,7 +53,7 @@ public class BCECUtil {
   }
 
   public static int getCurveLength(ECKeyParameters ecKey) {
-    return getCurveLength(ecKey.getParameters());
+    return BCECUtil.getCurveLength(ecKey.getParameters());
   }
 
   public static int getCurveLength(ECDomainParameters domainParams) {
@@ -69,19 +69,19 @@ public class BCECUtil {
       BigInteger x, BigInteger y, ECCurve curve, ECDomainParameters domainParameters) {
     byte[] xBytes = x.toByteArray();
     byte[] yBytes = y.toByteArray();
-    return createECPublicKeyParameters(xBytes, yBytes, curve, domainParameters);
+    return BCECUtil.createECPublicKeyParameters(xBytes, yBytes, curve, domainParameters);
   }
 
   public static ECPublicKeyParameters createECPublicKeyParameters(
       String xHex, String yHex, ECCurve curve, ECDomainParameters domainParameters) {
     byte[] xBytes = ByteUtils.fromHexString(xHex);
     byte[] yBytes = ByteUtils.fromHexString(yHex);
-    return createECPublicKeyParameters(xBytes, yBytes, curve, domainParameters);
+    return BCECUtil.createECPublicKeyParameters(xBytes, yBytes, curve, domainParameters);
   }
 
   public static ECPublicKeyParameters createECPublicKeyParameters(
       byte[] xBytes, byte[] yBytes, ECCurve curve, ECDomainParameters domainParameters) {
-    final byte uncompressedFlag = 0x04;
+    byte uncompressedFlag = 0x04;
     byte[] encodedPubKey = new byte[1 + xBytes.length + yBytes.length];
     encodedPubKey[0] = uncompressedFlag;
     System.arraycopy(xBytes, 0, encodedPubKey, 1, xBytes.length);
@@ -104,11 +104,13 @@ public class BCECUtil {
             domainParams.getCurve(), domainParams.getG(), domainParams.getN(), domainParams.getH());
     BCECPublicKey publicKey = null;
     if (pubKey != null) {
-      publicKey = new BCECPublicKey(ALGO_NAME_EC, pubKey, spec, BouncyCastleProvider.CONFIGURATION);
+      publicKey =
+          new BCECPublicKey(
+              BCECUtil.ALGO_NAME_EC, pubKey, spec, BouncyCastleProvider.CONFIGURATION);
     }
     BCECPrivateKey privateKey =
         new BCECPrivateKey(
-            ALGO_NAME_EC, priKey, publicKey, spec, BouncyCastleProvider.CONFIGURATION);
+            BCECUtil.ALGO_NAME_EC, priKey, publicKey, spec, BouncyCastleProvider.CONFIGURATION);
     return privateKey.getEncoded();
   }
 
@@ -124,7 +126,8 @@ public class BCECUtil {
   public static BCECPrivateKey convertPKCS8ToECPrivateKey(byte[] pkcs8Key)
       throws NoSuchAlgorithmException, NoSuchProviderException, InvalidKeySpecException {
     PKCS8EncodedKeySpec peks = new PKCS8EncodedKeySpec(pkcs8Key);
-    KeyFactory kf = KeyFactory.getInstance(ALGO_NAME_EC, BouncyCastleProvider.PROVIDER_NAME);
+    KeyFactory kf =
+        KeyFactory.getInstance(BCECUtil.ALGO_NAME_EC, BouncyCastleProvider.PROVIDER_NAME);
     return (BCECPrivateKey) kf.generatePrivate(peks);
   }
 
@@ -136,7 +139,7 @@ public class BCECUtil {
    * @throws IOException
    */
   public static String convertECPrivateKeyPKCS8ToPEM(byte[] encodedKey) throws IOException {
-    return convertEncodedDataToPEM(PEM_STRING_ECPRIVATEKEY, encodedKey);
+    return BCECUtil.convertEncodedDataToPEM(BCECUtil.PEM_STRING_ECPRIVATEKEY, encodedKey);
   }
 
   /**
@@ -147,7 +150,7 @@ public class BCECUtil {
    * @throws IOException
    */
   public static byte[] convertECPrivateKeyPEMToPKCS8(String pemString) throws IOException {
-    return convertPEMToEncodedData(pemString);
+    return BCECUtil.convertPEMToEncodedData(pemString);
   }
 
   /**
@@ -161,7 +164,7 @@ public class BCECUtil {
    */
   public static byte[] convertECPrivateKeyToSEC1(
       ECPrivateKeyParameters priKey, ECPublicKeyParameters pubKey) throws IOException {
-    byte[] pkcs8Bytes = convertECPrivateKeyToPKCS8(priKey, pubKey);
+    byte[] pkcs8Bytes = BCECUtil.convertECPrivateKeyToPKCS8(priKey, pubKey);
     PrivateKeyInfo pki = PrivateKeyInfo.getInstance(pkcs8Bytes);
     ASN1Encodable encodable = pki.parsePrivateKey();
     ASN1Primitive primitive = encodable.toASN1Primitive();
@@ -181,7 +184,7 @@ public class BCECUtil {
      * 参考org.bouncycastle.asn1.pkcs.PrivateKeyInfo和
      * org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey，逆向拼装
      */
-    X962Parameters params = getDomainParametersFromName(SM2Util.JDK_EC_SPEC, false);
+    X962Parameters params = BCECUtil.getDomainParametersFromName(SM2Util.JDK_EC_SPEC, false);
     ASN1OctetString privKey = new DEROctetString(sec1Key);
     ASN1EncodableVector v = new ASN1EncodableVector();
     v.add(new ASN1Integer(0)); // 版本号
@@ -204,8 +207,10 @@ public class BCECUtil {
   public static BCECPrivateKey convertSEC1ToBCECPrivateKey(byte[] sec1Key)
       throws NoSuchAlgorithmException, NoSuchProviderException, InvalidKeySpecException,
           IOException {
-    PKCS8EncodedKeySpec peks = new PKCS8EncodedKeySpec(convertECPrivateKeySEC1ToPKCS8(sec1Key));
-    KeyFactory kf = KeyFactory.getInstance(ALGO_NAME_EC, BouncyCastleProvider.PROVIDER_NAME);
+    PKCS8EncodedKeySpec peks =
+        new PKCS8EncodedKeySpec(BCECUtil.convertECPrivateKeySEC1ToPKCS8(sec1Key));
+    KeyFactory kf =
+        KeyFactory.getInstance(BCECUtil.ALGO_NAME_EC, BouncyCastleProvider.PROVIDER_NAME);
     return (BCECPrivateKey) kf.generatePrivate(peks);
   }
 
@@ -223,7 +228,7 @@ public class BCECUtil {
   public static ECPrivateKeyParameters convertSEC1ToECPrivateKey(byte[] sec1Key)
       throws NoSuchAlgorithmException, NoSuchProviderException, InvalidKeySpecException,
           IOException {
-    BCECPrivateKey privateKey = convertSEC1ToBCECPrivateKey(sec1Key);
+    BCECPrivateKey privateKey = BCECUtil.convertSEC1ToBCECPrivateKey(sec1Key);
     return SM2Util.convertPrivateKey(privateKey);
   }
 
@@ -239,7 +244,7 @@ public class BCECUtil {
         new ECParameterSpec(
             domainParams.getCurve(), domainParams.getG(), domainParams.getN(), domainParams.getH());
     BCECPublicKey publicKey =
-        new BCECPublicKey(ALGO_NAME_EC, pubKey, spec, BouncyCastleProvider.CONFIGURATION);
+        new BCECPublicKey(BCECUtil.ALGO_NAME_EC, pubKey, spec, BouncyCastleProvider.CONFIGURATION);
     return publicKey.getEncoded();
   }
 
@@ -267,7 +272,7 @@ public class BCECUtil {
    * @throws IOException
    */
   public static String convertECPublicKeyX509ToPEM(byte[] encodedKey) throws IOException {
-    return convertEncodedDataToPEM(PEM_STRING_PUBLIC, encodedKey);
+    return BCECUtil.convertEncodedDataToPEM(BCECUtil.PEM_STRING_PUBLIC, encodedKey);
   }
 
   /**
@@ -278,7 +283,7 @@ public class BCECUtil {
    * @throws IOException
    */
   public static byte[] convertECPublicKeyPEMToX509(String pemString) throws IOException {
-    return convertPEMToEncodedData(pemString);
+    return BCECUtil.convertPEMToEncodedData(pemString);
   }
 
   /**
@@ -288,7 +293,7 @@ public class BCECUtil {
    * @return
    */
   public static X9ECParameters getDomainParametersFromGenSpec(ECGenParameterSpec genSpec) {
-    return getDomainParametersFromName(genSpec.getName());
+    return BCECUtil.getDomainParametersFromName(genSpec.getName());
   }
 
   /**

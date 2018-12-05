@@ -94,7 +94,9 @@ public class SM2CertUtilTest {
                   rootDN, rootPub, rootKP.getPrivate(), SM2X509CertMaker.SIGN_ALGO_SM3WITHSM2)
               .getEncoded();
       SM2X509CertMakerTest.savePriKey(
-          ROOT_PRI_PATH, (BCECPrivateKey) rootKP.getPrivate(), (BCECPublicKey) rootKP.getPublic());
+          SM2CertUtilTest.ROOT_PRI_PATH,
+          (BCECPrivateKey) rootKP.getPrivate(),
+          (BCECPublicKey) rootKP.getPublic());
       X509Certificate rootCACert =
           rootCertMaker.makeCertificate(
               true,
@@ -104,10 +106,10 @@ public class SM2CertUtilTest {
                       | KeyUsage.keyCertSign
                       | KeyUsage.cRLSign),
               rootCSR);
-      FileUtil.writeFile(ROOT_CERT_PATH, rootCACert.getEncoded());
+      FileUtil.writeFile(SM2CertUtilTest.ROOT_CERT_PATH, rootCACert.getEncoded());
 
       KeyPair midKP = SM2Util.generateBCECKeyPair();
-      X500Name midDN = buildMidCADN();
+      X500Name midDN = SM2CertUtilTest.buildMidCADN();
       SM2PublicKey midPub =
           new SM2PublicKey(midKP.getPublic().getAlgorithm(), (BCECPublicKey) midKP.getPublic());
       byte[] midCSR =
@@ -115,7 +117,9 @@ public class SM2CertUtilTest {
                   midDN, midPub, midKP.getPrivate(), SM2X509CertMaker.SIGN_ALGO_SM3WITHSM2)
               .getEncoded();
       SM2X509CertMakerTest.savePriKey(
-          MID_PRI_PATH, (BCECPrivateKey) midKP.getPrivate(), (BCECPublicKey) midKP.getPublic());
+          SM2CertUtilTest.MID_PRI_PATH,
+          (BCECPrivateKey) midKP.getPrivate(),
+          (BCECPublicKey) midKP.getPublic());
       X509Certificate midCACert =
           rootCertMaker.makeCertificate(
               true,
@@ -125,7 +129,7 @@ public class SM2CertUtilTest {
                       | KeyUsage.keyCertSign
                       | KeyUsage.cRLSign),
               midCSR);
-      FileUtil.writeFile(MID_CERT_PATH, midCACert.getEncoded());
+      FileUtil.writeFile(SM2CertUtilTest.MID_CERT_PATH, midCACert.getEncoded());
 
       SM2X509CertMaker midCertMaker = new SM2X509CertMaker(midKP, certExpire, midDN, snAllocator);
       KeyPair userKP = SM2Util.generateBCECKeyPair();
@@ -137,26 +141,28 @@ public class SM2CertUtilTest {
                   userDN, userPub, userKP.getPrivate(), SM2X509CertMaker.SIGN_ALGO_SM3WITHSM2)
               .getEncoded();
       SM2X509CertMakerTest.savePriKey(
-          USER_PRI_PATH, (BCECPrivateKey) userKP.getPrivate(), (BCECPublicKey) userKP.getPublic());
+          SM2CertUtilTest.USER_PRI_PATH,
+          (BCECPrivateKey) userKP.getPrivate(),
+          (BCECPublicKey) userKP.getPublic());
       X509Certificate userCert =
           midCertMaker.makeCertificate(
               false, new KeyUsage(KeyUsage.digitalSignature | KeyUsage.dataEncipherment), userCSR);
-      FileUtil.writeFile(USER_CERT_PATH, userCert.getEncoded());
+      FileUtil.writeFile(SM2CertUtilTest.USER_CERT_PATH, userCert.getEncoded());
 
       // 根证书是自签名，所以用自己的公钥验证自己的证书
       BCECPublicKey bcRootPub = SM2CertUtil.getBCECPublicKey(rootCACert);
-      rootCACert = SM2CertUtil.getX509Certificate(ROOT_CERT_PATH);
+      rootCACert = SM2CertUtil.getX509Certificate(SM2CertUtilTest.ROOT_CERT_PATH);
       if (!SM2CertUtil.verifyCertificate(bcRootPub, rootCACert)) {
         Assert.fail();
       }
 
-      midCACert = SM2CertUtil.getX509Certificate(MID_CERT_PATH);
+      midCACert = SM2CertUtil.getX509Certificate(SM2CertUtilTest.MID_CERT_PATH);
       if (!SM2CertUtil.verifyCertificate(bcRootPub, midCACert)) {
         Assert.fail();
       }
 
       BCECPublicKey bcMidPub = SM2CertUtil.getBCECPublicKey(midCACert);
-      userCert = SM2CertUtil.getX509Certificate(USER_CERT_PATH);
+      userCert = SM2CertUtil.getX509Certificate(SM2CertUtilTest.USER_CERT_PATH);
       if (!SM2CertUtil.verifyCertificate(bcMidPub, userCert)) {
         Assert.fail();
       }
