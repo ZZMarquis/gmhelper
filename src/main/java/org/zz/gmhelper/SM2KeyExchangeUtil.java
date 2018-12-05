@@ -9,17 +9,16 @@ import org.bouncycastle.crypto.params.SM2KeyExchangePublicParameters;
 
 import java.util.Arrays;
 
-public class Sm2KeyExchangeUtil {
+public class SM2KeyExchangeUtil {
     /**
-     *
-     * @param initiator true表示发起方，false表示响应方
-     * @param keyBits 生成的密钥长度
-     * @param selfStaticPriv 己方固定私钥
+     * @param initiator         true表示发起方，false表示响应方
+     * @param keyBits           生成的密钥长度
+     * @param selfStaticPriv    己方固定私钥
      * @param selfEphemeralPriv 己方临时私钥
-     * @param selfId 己方ID
-     * @param otherStaticPub 对方固定公钥
+     * @param selfId            己方ID
+     * @param otherStaticPub    对方固定公钥
      * @param otherEphemeralPub 对方临时公钥
-     * @param otherId 对方ID
+     * @param otherId           对方ID
      * @return 返回协商出的密钥，但是这个密钥是没有经过确认的
      */
     public static byte[] calculateKey(boolean initiator, int keyBits,
@@ -35,16 +34,15 @@ public class Sm2KeyExchangeUtil {
     }
 
     /**
-     *
-     * @param initiator true表示发起方，false表示响应方
-     * @param keyBits 生成的密钥长度
-     * @param confirmationTag 确认信息，如果是响应方可以为null；如果是发起方则应为响应方的s1
-     * @param selfStaticPriv 己方固定私钥
+     * @param initiator         true表示发起方，false表示响应方
+     * @param keyBits           生成的密钥长度
+     * @param confirmationTag   确认信息，如果是响应方可以为null；如果是发起方则应为响应方的s1
+     * @param selfStaticPriv    己方固定私钥
      * @param selfEphemeralPriv 己方临时私钥
-     * @param selfId 己方ID
-     * @param otherStaticPub 对方固定公钥
+     * @param selfId            己方ID
+     * @param otherStaticPub    对方固定公钥
      * @param otherEphemeralPub 对方临时公钥
-     * @param otherId 对方ID
+     * @param otherId           对方ID
      * @return
      */
     public static ExchangeResult calculateKeyWithConfirmation(boolean initiator, int keyBits, byte[] confirmationTag,
@@ -70,7 +68,6 @@ public class Sm2KeyExchangeUtil {
     }
 
     /**
-     *
      * @param s2
      * @param confirmationTag 实际上是发起方的s2
      * @return

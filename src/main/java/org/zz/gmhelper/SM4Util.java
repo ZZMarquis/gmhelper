@@ -1,5 +1,7 @@
 package org.zz.gmhelper;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
@@ -14,9 +16,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-
-public class Sm4Util extends GmBaseUtil {
+public class SM4Util extends GMBaseUtil {
     public static final String ALGORITHM_NAME = "SM4";
     public static final String ALGORITHM_NAME_ECB_PADDING = "SM4/ECB/PKCS5Padding";
     public static final String ALGORITHM_NAME_CBC_PADDING = "SM4/CBC/PKCS5Padding";

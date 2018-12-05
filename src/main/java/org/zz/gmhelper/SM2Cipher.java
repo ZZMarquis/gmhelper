@@ -1,6 +1,6 @@
 package org.zz.gmhelper;
 
-public class Sm2EncryptResult {
+public class SM2Cipher {
     /**
      * ECC密钥
      */

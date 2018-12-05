@@ -1,12 +1,12 @@
 package org.zz.gmhelper;
 
-import java.util.Arrays;
-
 import org.bouncycastle.crypto.digests.SM3Digest;
 import org.bouncycastle.crypto.macs.HMac;
 import org.bouncycastle.crypto.params.KeyParameter;
 
-public class Sm3Util extends GmBaseUtil {
+import java.util.Arrays;
+
+public class SM3Util extends GMBaseUtil {
 
     public static byte[] hash(byte[] srcData) {
         SM3Digest digest = new SM3Digest();
