@@ -111,6 +111,27 @@ public class SM2Util extends GMBaseUtil {
         return convertPublicKey(subPubInfo.toASN1Primitive().getEncoded(ASN1Encoding.DER));
     }
 
+    /**
+     * 只获取私钥里的d，32字节
+     * @param privateKey
+     * @return
+     */
+    public static byte[] getRawPrivateKey(BCECPrivateKey privateKey) {
+        return fixTo32Bytes(privateKey.getD().toByteArray());
+    }
+
+    /**
+     * 只获取公钥里的XY分量，64字节
+     * @param publicKey
+     * @return
+     */
+    public static byte[] getRawPublicKey(BCECPublicKey publicKey) {
+        byte[] src65 = publicKey.getQ().getEncoded(false);
+        byte[] rawXY = new byte[64];
+        System.arraycopy(src65, 1, rawXY, 0, rawXY.length);
+        return rawXY;
+    }
+
     public static byte[] encrypt(BCECPublicKey pubKey, byte[] srcData) throws InvalidCipherTextException {
         ECPublicKeyParameters pubKeyParameters = convertPublicKey(pubKey);
         return encrypt(pubKeyParameters, srcData);
