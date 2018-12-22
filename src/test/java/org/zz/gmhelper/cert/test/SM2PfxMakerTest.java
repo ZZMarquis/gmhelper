@@ -9,6 +9,7 @@ import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.pkcs.PKCS12PfxPdu;
 import org.junit.Assert;
 import org.junit.Test;
+import org.zz.gmhelper.BCECUtil;
 import org.zz.gmhelper.SM2Util;
 import org.zz.gmhelper.cert.CommonUtil;
 import org.zz.gmhelper.cert.SM2PfxMaker;
@@ -29,7 +30,7 @@ public class SM2PfxMakerTest {
     @Test
     public void testMakePfx() {
         try {
-            KeyPair subKP = SM2Util.generateBCECKeyPair();
+            KeyPair subKP = SM2Util.generateKeyPair();
             X500Name subDN = SM2X509CertMakerTest.buildSubjectDN();
             SM2PublicKey sm2SubPub = new SM2PublicKey(subKP.getPublic().getAlgorithm(),
                 (BCECPublicKey) subKP.getPublic());
@@ -41,7 +42,7 @@ public class SM2PfxMakerTest {
 
             SM2PfxMaker pfxMaker = new SM2PfxMaker();
             PKCS10CertificationRequest request = new PKCS10CertificationRequest(csr);
-            PublicKey subPub = SM2Util.convertPublicKey(request.getSubjectPublicKeyInfo());
+            PublicKey subPub = BCECUtil.createPublicKeyFromSubjectPublicKeyInfo(request.getSubjectPublicKeyInfo());
             PKCS12PfxPdu pfx = pfxMaker.makePfx(subKP.getPrivate(), subPub, cert, "12345678");
             byte[] pfxDER = pfx.getEncoded(ASN1Encoding.DER);
             FileUtil.writeFile("D:/test.pfx", pfxDER);

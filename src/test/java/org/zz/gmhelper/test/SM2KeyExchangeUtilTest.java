@@ -18,16 +18,16 @@ public class SM2KeyExchangeUtilTest {
     @Test
     public void testCaculateKey() {
         try {
-            AsymmetricCipherKeyPair initiatorStaticKp = SM2Util.generateKeyPair();
+            AsymmetricCipherKeyPair initiatorStaticKp = SM2Util.generateKeyPairParameter();
             ECPrivateKeyParameters initiatorStaticPriv = (ECPrivateKeyParameters) initiatorStaticKp.getPrivate();
             ECPublicKeyParameters initiatorStaticPub = (ECPublicKeyParameters) initiatorStaticKp.getPublic();
-            AsymmetricCipherKeyPair initiatorEphemeralKp = SM2Util.generateKeyPair();
+            AsymmetricCipherKeyPair initiatorEphemeralKp = SM2Util.generateKeyPairParameter();
             ECPrivateKeyParameters initiatorEphemeralPriv = (ECPrivateKeyParameters) initiatorEphemeralKp.getPrivate();
             ECPublicKeyParameters initiatorSEphemeralPub = (ECPublicKeyParameters) initiatorEphemeralKp.getPublic();
-            AsymmetricCipherKeyPair responderStaticKp = SM2Util.generateKeyPair();
+            AsymmetricCipherKeyPair responderStaticKp = SM2Util.generateKeyPairParameter();
             ECPrivateKeyParameters responderStaticPriv = (ECPrivateKeyParameters) responderStaticKp.getPrivate();
             ECPublicKeyParameters responderStaticPub = (ECPublicKeyParameters) responderStaticKp.getPublic();
-            AsymmetricCipherKeyPair responderEphemeralKp = SM2Util.generateKeyPair();
+            AsymmetricCipherKeyPair responderEphemeralKp = SM2Util.generateKeyPairParameter();
             ECPrivateKeyParameters responderEphemeralPriv = (ECPrivateKeyParameters) responderEphemeralKp.getPrivate();
             ECPublicKeyParameters responderSEphemeralPub = (ECPublicKeyParameters) responderEphemeralKp.getPublic();
 
@@ -50,16 +50,16 @@ public class SM2KeyExchangeUtilTest {
     @Test
     public void testCalculateKeyWithConfirmation() {
         try {
-            AsymmetricCipherKeyPair initiatorStaticKp = SM2Util.generateKeyPair();
+            AsymmetricCipherKeyPair initiatorStaticKp = SM2Util.generateKeyPairParameter();
             ECPrivateKeyParameters initiatorStaticPriv = (ECPrivateKeyParameters) initiatorStaticKp.getPrivate();
             ECPublicKeyParameters initiatorStaticPub = (ECPublicKeyParameters) initiatorStaticKp.getPublic();
-            AsymmetricCipherKeyPair initiatorEphemeralKp = SM2Util.generateKeyPair();
+            AsymmetricCipherKeyPair initiatorEphemeralKp = SM2Util.generateKeyPairParameter();
             ECPrivateKeyParameters initiatorEphemeralPriv = (ECPrivateKeyParameters) initiatorEphemeralKp.getPrivate();
             ECPublicKeyParameters initiatorSEphemeralPub = (ECPublicKeyParameters) initiatorEphemeralKp.getPublic();
-            AsymmetricCipherKeyPair responderStaticKp = SM2Util.generateKeyPair();
+            AsymmetricCipherKeyPair responderStaticKp = SM2Util.generateKeyPairParameter();
             ECPrivateKeyParameters responderStaticPriv = (ECPrivateKeyParameters) responderStaticKp.getPrivate();
             ECPublicKeyParameters responderStaticPub = (ECPublicKeyParameters) responderStaticKp.getPublic();
-            AsymmetricCipherKeyPair responderEphemeralKp = SM2Util.generateKeyPair();
+            AsymmetricCipherKeyPair responderEphemeralKp = SM2Util.generateKeyPairParameter();
             ECPrivateKeyParameters responderEphemeralPriv = (ECPrivateKeyParameters) responderEphemeralKp.getPrivate();
             ECPublicKeyParameters responderSEphemeralPub = (ECPublicKeyParameters) responderEphemeralKp.getPublic();
 

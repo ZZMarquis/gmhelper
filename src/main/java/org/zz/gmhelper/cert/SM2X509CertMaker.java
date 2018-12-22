@@ -12,6 +12,7 @@ import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
+import org.zz.gmhelper.BCECUtil;
 import org.zz.gmhelper.SM2Util;
 
 import java.security.KeyPair;
@@ -54,7 +55,7 @@ public class SM2X509CertMaker {
     public X509Certificate makeCertificate(boolean isCA, KeyUsage keyUsage, byte[] csr)
         throws Exception {
         PKCS10CertificationRequest request = new PKCS10CertificationRequest(csr);
-        PublicKey subPub = SM2Util.convertPublicKey(request.getSubjectPublicKeyInfo());
+        PublicKey subPub = BCECUtil.createPublicKeyFromSubjectPublicKeyInfo(request.getSubjectPublicKeyInfo());
         PrivateKey issPriv = issuerKeyPair.getPrivate();
         PublicKey issPub = issuerKeyPair.getPublic();
 
