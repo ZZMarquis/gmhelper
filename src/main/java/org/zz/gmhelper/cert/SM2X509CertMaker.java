@@ -13,7 +13,6 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.zz.gmhelper.BCECUtil;
-import org.zz.gmhelper.SM2Util;
 
 import java.security.KeyPair;
 import java.security.PrivateKey;

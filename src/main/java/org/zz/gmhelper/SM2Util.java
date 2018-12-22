@@ -82,6 +82,7 @@ public class SM2Util extends GMBaseUtil {
 
     /**
      * 只获取私钥里的d，32字节
+     *
      * @param privateKey
      * @return
      */
@@ -91,6 +92,7 @@ public class SM2Util extends GMBaseUtil {
 
     /**
      * 只获取公钥里的XY分量，64字节
+     *
      * @param publicKey
      * @return
      */
@@ -310,6 +312,7 @@ public class SM2Util extends GMBaseUtil {
 
     /**
      * 将DER编码的SM2签名解析成64字节的纯R+S字节流
+     *
      * @param derSign
      * @return
      */
@@ -328,6 +331,7 @@ public class SM2Util extends GMBaseUtil {
 
     /**
      * 把64字节的纯R+S字节流转换成DER编码字节流
+     *
      * @param rawSign
      * @return
      * @throws IOException
