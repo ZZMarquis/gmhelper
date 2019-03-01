@@ -38,7 +38,7 @@ public class SM2X509CertMakerTest {
     @Test
     public void testMakeCertificate() {
         try {
-            KeyPair subKP = SM2Util.generateBCECKeyPair();
+            KeyPair subKP = SM2Util.generateKeyPair();
             X500Name subDN = buildSubjectDN();
             SM2PublicKey sm2SubPub = new SM2PublicKey(subKP.getPublic().getAlgorithm(),
                 (BCECPublicKey) subKP.getPublic());
@@ -57,8 +57,8 @@ public class SM2X509CertMakerTest {
     }
 
     public static void savePriKey(String filePath, BCECPrivateKey priKey, BCECPublicKey pubKey) throws IOException {
-        ECPrivateKeyParameters priKeyParam = SM2Util.convertPrivateKey(priKey);
-        ECPublicKeyParameters pubKeyParam = SM2Util.convertPublicKey(pubKey);
+        ECPrivateKeyParameters priKeyParam = BCECUtil.convertPrivateKeyToParameters(priKey);
+        ECPublicKeyParameters pubKeyParam = BCECUtil.convertPublicKeyToParameters(pubKey);
         byte[] derPriKey = BCECUtil.convertECPrivateKeyToSEC1(priKeyParam, pubKeyParam);
         FileUtil.writeFile(filePath, derPriKey);
     }
@@ -84,7 +84,7 @@ public class SM2X509CertMakerTest {
     public static SM2X509CertMaker buildCertMaker() throws InvalidAlgorithmParameterException,
         NoSuchAlgorithmException, NoSuchProviderException, InvalidX500NameException {
         X500Name issuerName = buildRootCADN();
-        KeyPair issKP = SM2Util.generateBCECKeyPair();
+        KeyPair issKP = SM2Util.generateKeyPair();
         long certExpire = 20L * 365 * 24 * 60 * 60 * 1000; // 20年
         CertSNAllocator snAllocator = new FileSNAllocator(); // 实际应用中可能需要使用数据库来维护证书序列号
         return new SM2X509CertMaker(issKP, certExpire, issuerName, snAllocator);

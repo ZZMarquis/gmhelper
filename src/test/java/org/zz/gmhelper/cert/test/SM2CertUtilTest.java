@@ -79,7 +79,7 @@ public class SM2CertUtilTest {
         try {
             long certExpire = 20L * 365 * 24 * 60 * 60 * 1000;
             CertSNAllocator snAllocator = new FileSNAllocator();
-            KeyPair rootKP = SM2Util.generateBCECKeyPair();
+            KeyPair rootKP = SM2Util.generateKeyPair();
             X500Name rootDN = SM2X509CertMakerTest.buildRootCADN();
             SM2X509CertMaker rootCertMaker = new SM2X509CertMaker(rootKP, certExpire, rootDN, snAllocator);
             SM2PublicKey rootPub = new SM2PublicKey(rootKP.getPublic().getAlgorithm(),
@@ -94,7 +94,7 @@ public class SM2CertUtilTest {
                 rootCSR);
             FileUtil.writeFile(ROOT_CERT_PATH, rootCACert.getEncoded());
 
-            KeyPair midKP = SM2Util.generateBCECKeyPair();
+            KeyPair midKP = SM2Util.generateKeyPair();
             X500Name midDN = buildMidCADN();
             SM2PublicKey midPub = new SM2PublicKey(midKP.getPublic().getAlgorithm(),
                 (BCECPublicKey) midKP.getPublic());
@@ -109,7 +109,7 @@ public class SM2CertUtilTest {
             FileUtil.writeFile(MID_CERT_PATH, midCACert.getEncoded());
 
             SM2X509CertMaker midCertMaker = new SM2X509CertMaker(midKP, certExpire, midDN, snAllocator);
-            KeyPair userKP = SM2Util.generateBCECKeyPair();
+            KeyPair userKP = SM2Util.generateKeyPair();
             X500Name userDN = SM2X509CertMakerTest.buildSubjectDN();
             SM2PublicKey userPub = new SM2PublicKey(userKP.getPublic().getAlgorithm(),
                 (BCECPublicKey) userKP.getPublic());

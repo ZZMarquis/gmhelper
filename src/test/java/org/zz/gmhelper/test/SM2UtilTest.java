@@ -21,7 +21,7 @@ public class SM2UtilTest extends GMBaseTest {
     @Test
     public void testSignAndVerify() {
         try {
-            AsymmetricCipherKeyPair keyPair = SM2Util.generateKeyPair();
+            AsymmetricCipherKeyPair keyPair = SM2Util.generateKeyPairParameter();
             ECPrivateKeyParameters priKey = (ECPrivateKeyParameters) keyPair.getPrivate();
             ECPublicKeyParameters pubKey = (ECPublicKeyParameters) keyPair.getPublic();
 
@@ -59,7 +59,7 @@ public class SM2UtilTest extends GMBaseTest {
     @Test
     public void testEncryptAndDecrypt() {
         try {
-            AsymmetricCipherKeyPair keyPair = SM2Util.generateKeyPair();
+            AsymmetricCipherKeyPair keyPair = SM2Util.generateKeyPairParameter();
             ECPrivateKeyParameters priKey = (ECPrivateKeyParameters) keyPair.getPrivate();
             ECPublicKeyParameters pubKey = (ECPublicKeyParameters) keyPair.getPublic();
 
@@ -88,7 +88,7 @@ public class SM2UtilTest extends GMBaseTest {
     @Test
     public void testKeyPairEncoding() {
         try {
-            AsymmetricCipherKeyPair keyPair = SM2Util.generateKeyPair();
+            AsymmetricCipherKeyPair keyPair = SM2Util.generateKeyPairParameter();
             ECPrivateKeyParameters priKey = (ECPrivateKeyParameters) keyPair.getPrivate();
             ECPublicKeyParameters pubKey = (ECPublicKeyParameters) keyPair.getPublic();
 
@@ -156,7 +156,7 @@ public class SM2UtilTest extends GMBaseTest {
     @Test
     public void testSM2KeyGen2() {
         try {
-            AsymmetricCipherKeyPair keyPair = SM2Util.generateKeyPair();
+            AsymmetricCipherKeyPair keyPair = SM2Util.generateKeyPairParameter();
             ECPrivateKeyParameters priKey = (ECPrivateKeyParameters) keyPair.getPrivate();
             ECPublicKeyParameters pubKey = (ECPublicKeyParameters) keyPair.getPublic();
 
@@ -177,7 +177,7 @@ public class SM2UtilTest extends GMBaseTest {
     @Test
     public void testEncodeSM2CipherToDER() {
         try {
-            AsymmetricCipherKeyPair keyPair = SM2Util.generateKeyPair();
+            AsymmetricCipherKeyPair keyPair = SM2Util.generateKeyPairParameter();
             ECPrivateKeyParameters priKey = (ECPrivateKeyParameters) keyPair.getPrivate();
             ECPublicKeyParameters pubKey = (ECPublicKeyParameters) keyPair.getPublic();
 
@@ -201,9 +201,9 @@ public class SM2UtilTest extends GMBaseTest {
     @Test
     public void testGenerateBCECKeyPair() {
         try {
-            KeyPair keyPair = SM2Util.generateBCECKeyPair();
-            ECPrivateKeyParameters priKey = SM2Util.convertPrivateKey((BCECPrivateKey) keyPair.getPrivate());
-            ECPublicKeyParameters pubKey = SM2Util.convertPublicKey((BCECPublicKey) keyPair.getPublic());
+            KeyPair keyPair = SM2Util.generateKeyPair();
+            ECPrivateKeyParameters priKey = BCECUtil.convertPrivateKeyToParameters((BCECPrivateKey) keyPair.getPrivate());
+            ECPublicKeyParameters pubKey = BCECUtil.convertPublicKeyToParameters((BCECPublicKey) keyPair.getPublic());
 
             byte[] sign = SM2Util.sign(priKey, WITH_ID, SRC_DATA);
             boolean flag = SM2Util.verify(pubKey, WITH_ID, SRC_DATA, sign);

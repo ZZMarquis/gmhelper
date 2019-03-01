@@ -7,7 +7,6 @@ import org.bouncycastle.asn1.ASN1Integer;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.DERSequence;
-import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.CryptoException;
@@ -21,8 +20,6 @@ import org.bouncycastle.crypto.params.ParametersWithRandom;
 import org.bouncycastle.crypto.signers.SM2Signer;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.bouncycastle.math.ec.ECPoint;
 import org.bouncycastle.math.ec.custom.gm.SM2P256V1Curve;
 
@@ -30,13 +27,11 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.security.spec.ECFieldFp;
 import java.security.spec.EllipticCurve;
-import java.security.spec.InvalidKeySpecException;
 
 public class SM2Util extends GMBaseUtil {
     //////////////////////////////////////////////////////////////////////////////////////
@@ -56,6 +51,7 @@ public class SM2Util extends GMBaseUtil {
     public static final ECPoint G_POINT = CURVE.createPoint(SM2_ECC_GX, SM2_ECC_GY);
     public static final ECDomainParameters DOMAIN_PARAMS = new ECDomainParameters(CURVE, G_POINT,
         SM2_ECC_N, SM2_ECC_H);
+    public static final int CURVE_LEN = BCECUtil.getCurveLength(DOMAIN_PARAMS);
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static final EllipticCurve JDK_CURVE = new EllipticCurve(new ECFieldFp(SM2_ECC_P), SM2_ECC_A, SM2_ECC_B);
@@ -73,46 +69,42 @@ public class SM2Util extends GMBaseUtil {
      *
      * @return ECC密钥对
      */
-    public static AsymmetricCipherKeyPair generateKeyPair() {
+    public static AsymmetricCipherKeyPair generateKeyPairParameter() {
+        SecureRandom random = new SecureRandom();
+        return BCECUtil.generateKeyPairParameter(DOMAIN_PARAMS, random);
+    }
+
+    public static KeyPair generateKeyPair() throws NoSuchProviderException, NoSuchAlgorithmException,
+        InvalidAlgorithmParameterException {
         SecureRandom random = new SecureRandom();
         return BCECUtil.generateKeyPair(DOMAIN_PARAMS, random);
     }
 
-    public static KeyPair generateBCECKeyPair() throws NoSuchProviderException, NoSuchAlgorithmException,
-        InvalidAlgorithmParameterException {
-        KeyPairGenerator kpg = KeyPairGenerator.getInstance("EC", BouncyCastleProvider.PROVIDER_NAME);
-        SecureRandom random = new SecureRandom();
-        ECParameterSpec parameterSpec = new ECParameterSpec(CURVE, G_POINT, SM2_ECC_N, SM2_ECC_H);
-        kpg.initialize(parameterSpec, random);
-        return kpg.generateKeyPair();
+    /**
+     * 只获取私钥里的d，32字节
+     *
+     * @param privateKey
+     * @return
+     */
+    public static byte[] getRawPrivateKey(BCECPrivateKey privateKey) {
+        return fixToCurveLengthBytes(privateKey.getD().toByteArray());
     }
 
-    public static ECPrivateKeyParameters convertPrivateKey(BCECPrivateKey ecPriKey) {
-        ECParameterSpec parameterSpec = ecPriKey.getParameters();
-        ECDomainParameters domainParameters = new ECDomainParameters(parameterSpec.getCurve(), parameterSpec.getG(),
-            parameterSpec.getN(), parameterSpec.getH());
-        return new ECPrivateKeyParameters(ecPriKey.getD(), domainParameters);
-    }
-
-    public static ECPublicKeyParameters convertPublicKey(BCECPublicKey ecPubKey) {
-        ECParameterSpec parameterSpec = ecPubKey.getParameters();
-        ECDomainParameters domainParameters = new ECDomainParameters(parameterSpec.getCurve(), parameterSpec.getG(),
-            parameterSpec.getN(), parameterSpec.getH());
-        return new ECPublicKeyParameters(ecPubKey.getQ(), domainParameters);
-    }
-
-    public static BCECPublicKey convertPublicKey(byte[] x509Bytes) throws NoSuchProviderException,
-        NoSuchAlgorithmException, InvalidKeySpecException {
-        return BCECUtil.convertX509ToECPublicKey(x509Bytes);
-    }
-
-    public static BCECPublicKey convertPublicKey(SubjectPublicKeyInfo subPubInfo) throws NoSuchProviderException,
-        NoSuchAlgorithmException, InvalidKeySpecException, IOException {
-        return convertPublicKey(subPubInfo.toASN1Primitive().getEncoded(ASN1Encoding.DER));
+    /**
+     * 只获取公钥里的XY分量，64字节
+     *
+     * @param publicKey
+     * @return
+     */
+    public static byte[] getRawPublicKey(BCECPublicKey publicKey) {
+        byte[] src65 = publicKey.getQ().getEncoded(false);
+        byte[] rawXY = new byte[CURVE_LEN * 2];//SM2的话这里应该是64字节
+        System.arraycopy(src65, 1, rawXY, 0, rawXY.length);
+        return rawXY;
     }
 
     public static byte[] encrypt(BCECPublicKey pubKey, byte[] srcData) throws InvalidCipherTextException {
-        ECPublicKeyParameters pubKeyParameters = convertPublicKey(pubKey);
+        ECPublicKeyParameters pubKeyParameters = BCECUtil.convertPublicKeyToParameters(pubKey);
         return encrypt(pubKeyParameters, srcData);
     }
 
@@ -133,7 +125,7 @@ public class SM2Util extends GMBaseUtil {
     }
 
     public static byte[] decrypt(BCECPrivateKey priKey, byte[] sm2Cipher) throws InvalidCipherTextException {
-        ECPrivateKeyParameters priKeyParameters = convertPrivateKey(priKey);
+        ECPrivateKeyParameters priKeyParameters = BCECUtil.convertPrivateKeyToParameters(priKey);
         return decrypt(priKeyParameters, sm2Cipher);
     }
 
@@ -272,7 +264,7 @@ public class SM2Util extends GMBaseUtil {
 
     public static byte[] sign(BCECPrivateKey priKey, byte[] srcData) throws NoSuchAlgorithmException,
         NoSuchProviderException, CryptoException {
-        ECPrivateKeyParameters priKeyParameters = convertPrivateKey(priKey);
+        ECPrivateKeyParameters priKeyParameters = BCECUtil.convertPrivateKeyToParameters(priKey);
         return sign(priKeyParameters, null, srcData);
     }
 
@@ -290,7 +282,7 @@ public class SM2Util extends GMBaseUtil {
     }
 
     public static byte[] sign(BCECPrivateKey priKey, byte[] withId, byte[] srcData) throws CryptoException {
-        ECPrivateKeyParameters priKeyParameters = convertPrivateKey(priKey);
+        ECPrivateKeyParameters priKeyParameters = BCECUtil.convertPrivateKeyToParameters(priKey);
         return sign(priKeyParameters, withId, srcData);
     }
 
@@ -320,6 +312,7 @@ public class SM2Util extends GMBaseUtil {
 
     /**
      * 将DER编码的SM2签名解析成64字节的纯R+S字节流
+     *
      * @param derSign
      * @return
      */
@@ -328,8 +321,8 @@ public class SM2Util extends GMBaseUtil {
         byte[] rBytes = ((ASN1Integer) as.getObjectAt(0)).getValue().toByteArray();
         byte[] sBytes = ((ASN1Integer) as.getObjectAt(1)).getValue().toByteArray();
         //由于大数的补0规则，所以可能会出现33个字节的情况，要修正回32个字节
-        rBytes = fixTo32Bytes(rBytes);
-        sBytes = fixTo32Bytes(sBytes);
+        rBytes = fixToCurveLengthBytes(rBytes);
+        sBytes = fixToCurveLengthBytes(sBytes);
         byte[] rawSign = new byte[rBytes.length + sBytes.length];
         System.arraycopy(rBytes, 0, rawSign, 0, rBytes.length);
         System.arraycopy(sBytes, 0, rawSign, rBytes.length, sBytes.length);
@@ -338,6 +331,7 @@ public class SM2Util extends GMBaseUtil {
 
     /**
      * 把64字节的纯R+S字节流转换成DER编码字节流
+     *
      * @param rawSign
      * @return
      * @throws IOException
@@ -353,7 +347,7 @@ public class SM2Util extends GMBaseUtil {
     }
 
     public static boolean verify(BCECPublicKey pubKey, byte[] srcData, byte[] sign) {
-        ECPublicKeyParameters pubKeyParameters = convertPublicKey(pubKey);
+        ECPublicKeyParameters pubKeyParameters = BCECUtil.convertPublicKeyToParameters(pubKey);
         return verify(pubKeyParameters, null, srcData, sign);
     }
 
@@ -371,7 +365,7 @@ public class SM2Util extends GMBaseUtil {
     }
 
     public static boolean verify(BCECPublicKey pubKey, byte[] withId, byte[] srcData, byte[] sign) {
-        ECPublicKeyParameters pubKeyParameters = convertPublicKey(pubKey);
+        ECPublicKeyParameters pubKeyParameters = BCECUtil.convertPublicKeyToParameters(pubKey);
         return verify(pubKeyParameters, withId, srcData, sign);
     }
 
@@ -403,14 +397,13 @@ public class SM2Util extends GMBaseUtil {
         return result;
     }
 
-    private static byte[] fixTo32Bytes(byte[] src) {
-        final int fixLen = 32;
-        if (src.length == fixLen) {
+    private static byte[] fixToCurveLengthBytes(byte[] src) {
+        if (src.length == CURVE_LEN) {
             return src;
         }
 
-        byte[] result = new byte[fixLen];
-        if (src.length > fixLen) {
+        byte[] result = new byte[CURVE_LEN];
+        if (src.length > CURVE_LEN) {
             System.arraycopy(src, src.length - result.length, result, 0, result.length);
         } else {
             System.arraycopy(src, result.length - src.length, result, 0, src.length);

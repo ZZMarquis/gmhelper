@@ -15,7 +15,7 @@ public class BCECUtilTest {
     @Test
     public void testECPrivateKeyPKCS8() {
         try {
-            AsymmetricCipherKeyPair keyPair = SM2Util.generateKeyPair();
+            AsymmetricCipherKeyPair keyPair = SM2Util.generateKeyPairParameter();
             ECPrivateKeyParameters priKeyParams = (ECPrivateKeyParameters) keyPair.getPrivate();
             ECPublicKeyParameters pubKeyParams = (ECPublicKeyParameters) keyPair.getPublic();
             byte[] pkcs8Bytes = BCECUtil.convertECPrivateKeyToPKCS8(priKeyParams, pubKeyParams);
