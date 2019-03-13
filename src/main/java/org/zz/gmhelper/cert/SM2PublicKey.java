@@ -14,7 +14,12 @@ public class SM2PublicKey extends BCECPublicKey {
 
     private boolean withCompression;
 
-    public SM2PublicKey(String algorithm, BCECPublicKey key) throws NoSuchFieldException, IllegalAccessException {
+    public SM2PublicKey(BCECPublicKey key) {
+        super(key.getAlgorithm(), key);
+        this.withCompression = false;
+    }
+
+    public SM2PublicKey(String algorithm, BCECPublicKey key) {
         super(algorithm, key);
         this.withCompression = false;
     }
