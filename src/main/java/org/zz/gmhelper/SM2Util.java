@@ -406,7 +406,7 @@ public class SM2Util extends GMBaseUtil {
         if (src.length > CURVE_LEN) {
             System.arraycopy(src, src.length - result.length, result, 0, result.length);
         } else {
-            System.arraycopy(src, result.length - src.length, result, 0, src.length);
+            System.arraycopy(src, 0, result, result.length - src.length, src.length);
         }
         return result;
     }
