@@ -42,9 +42,12 @@ public class SM2CertUtilTest {
     @Test
     public void testGetBCECPublicKey() {
         try {
-            X509Certificate cert = SM2CertUtil.getX509Certificate("D:/test.sm2.cer");
+            //当前测试例依赖以下测试例生成的文件，所以先调用一下
+            new SM2X509CertMakerTest().testMakeCertificate();
+
+            X509Certificate cert = SM2CertUtil.getX509Certificate("test.sm2.cer");
             BCECPublicKey pubKey = SM2CertUtil.getBCECPublicKey(cert);
-            byte[] priKeyData = FileUtil.readFile("D:/test.sm2.pri");
+            byte[] priKeyData = FileUtil.readFile("test.sm2.pri");
             ECPrivateKeyParameters priKeyParameters = BCECUtil.convertSEC1ToECPrivateKey(priKeyData);
 
             byte[] sign = SM2Util.sign(priKeyParameters, GMBaseTest.WITH_ID, GMBaseTest.SRC_DATA);

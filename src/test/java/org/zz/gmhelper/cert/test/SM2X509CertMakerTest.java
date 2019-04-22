@@ -44,12 +44,12 @@ public class SM2X509CertMakerTest {
                 (BCECPublicKey) subKP.getPublic());
             byte[] csr = CommonUtil.createCSR(subDN, sm2SubPub, subKP.getPrivate(),
                 SM2X509CertMaker.SIGN_ALGO_SM3WITHSM2).getEncoded();
-            savePriKey("D://test.sm2.pri", (BCECPrivateKey) subKP.getPrivate(),
+            savePriKey("test.sm2.pri", (BCECPrivateKey) subKP.getPrivate(),
                 (BCECPublicKey) subKP.getPublic());
             SM2X509CertMaker certMaker = buildCertMaker();
             X509Certificate cert = certMaker.makeCertificate(false,
                 new KeyUsage(KeyUsage.digitalSignature | KeyUsage.dataEncipherment), csr);
-            FileUtil.writeFile("D:/test.sm2.cer", cert.getEncoded());
+            FileUtil.writeFile("test.sm2.cer", cert.getEncoded());
         } catch (Exception ex) {
             ex.printStackTrace();
             Assert.fail();

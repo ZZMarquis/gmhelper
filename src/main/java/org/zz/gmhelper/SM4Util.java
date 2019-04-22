@@ -129,8 +129,22 @@ public class SM4Util extends GMBaseUtil {
         return doMac(mac, key, iv, data);
     }
 
-    public static byte[] doCBCMac(byte[] key, byte[] iv, BlockCipherPadding padding, byte[] data) {
+    /**
+     *
+     * @param key
+     * @param iv
+     * @param padding 可以传null，传null表示NoPadding，由调用方保证数据必须是BlockSize的整数倍
+     * @param data
+     * @return
+     * @throws Exception
+     */
+    public static byte[] doCBCMac(byte[] key, byte[] iv, BlockCipherPadding padding, byte[] data) throws Exception {
         SM4Engine engine = new SM4Engine();
+        if (padding == null) {
+            if (data.length % engine.getBlockSize() != 0) {
+                throw new Exception("if no padding, data length must be multiple of SM4 BlockSize");
+            }
+        }
         org.bouncycastle.crypto.Mac mac = new CBCBlockCipherMac(engine, engine.getBlockSize() * 8, padding);
         return doMac(mac, key, iv, data);
     }

@@ -62,8 +62,7 @@ public class SM4UtilTest extends GMBaseTest {
     }
 
     @Test
-    public void testMac() throws NoSuchProviderException, NoSuchAlgorithmException, InvalidKeyException,
-        IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, NoSuchPaddingException {
+    public void testMac() throws Exception {
         byte[] key = SM4Util.generateKey();
         byte[] iv = SM4Util.generateKey();
 
@@ -75,6 +74,14 @@ public class SM4UtilTest extends GMBaseTest {
 
         byte[] cipher = SM4Util.encrypt_Cbc_NoPadding(key, iv, SRC_DATA_32B);
         byte[] cipherLast16 = Arrays.copyOfRange(cipher, cipher.length - 16, cipher.length);
+        mac = SM4Util.doCBCMac(key, iv, null, SRC_DATA_32B);
+        if (!Arrays.equals(cipherLast16, mac)) {
+            Assert.fail();
+        }
+        System.out.println("CBCMAC:\n" + ByteUtils.toHexString(mac).toUpperCase());
+
+        cipher = SM4Util.encrypt_Cbc_Padding(key, iv, SRC_DATA_32B);
+        cipherLast16 = Arrays.copyOfRange(cipher, cipher.length - 16, cipher.length);
         mac = SM4Util.doCBCMac(key, iv, SRC_DATA_32B);
         if (!Arrays.equals(cipherLast16, mac)) {
             Assert.fail();
