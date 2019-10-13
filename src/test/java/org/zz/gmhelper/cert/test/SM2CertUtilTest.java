@@ -149,10 +149,10 @@ public class SM2CertUtilTest {
 
     public static X500Name buildMidCADN() {
         X500NameBuilder builder = new X500NameBuilder(BCStyle.INSTANCE);
-        builder.addRDN(BCStyle.CN, "ZZ Intermediate CA");
         builder.addRDN(BCStyle.C, "CN");
         builder.addRDN(BCStyle.O, "org.zz");
         builder.addRDN(BCStyle.OU, "org.zz");
+        builder.addRDN(BCStyle.CN, "ZZ Intermediate CA");
         return builder.build();
     }
 }

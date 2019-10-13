@@ -74,10 +74,10 @@ public class SM2X509CertMakerTest {
 
     public static X500Name buildRootCADN() {
         X500NameBuilder builder = new X500NameBuilder(BCStyle.INSTANCE);
-        builder.addRDN(BCStyle.CN, "ZZ Root CA");
         builder.addRDN(BCStyle.C, "CN");
         builder.addRDN(BCStyle.O, "org.zz");
         builder.addRDN(BCStyle.OU, "org.zz");
+        builder.addRDN(BCStyle.CN, "ZZ Root CA");
         return builder.build();
     }
 
