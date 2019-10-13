@@ -66,14 +66,13 @@ public class SM2X509CertMaker {
             extUtils.createSubjectKeyIdentifier(SubjectPublicKeyInfo.getInstance(subPub.getEncoded())));
         v3CertGen.addExtension(Extension.authorityKeyIdentifier, false,
             extUtils.createAuthorityKeyIdentifier(SubjectPublicKeyInfo.getInstance(issPub.getEncoded())));
-        if (isCA) {
-            // RFC 5280 §4.2.1.9 Basic Contraints:
-            // Conforming CAs MUST include this extension in all CA certificates
-            // that contain public keys used to validate digital signatures on
-            // certificates and MUST mark the extension as critical in such
-            // certificates.
-            v3CertGen.addExtension(Extension.basicConstraints, isCA, new BasicConstraints(isCA));
-        }
+
+        // RFC 5280 §4.2.1.9 Basic Contraints:
+        // Conforming CAs MUST include this extension in all CA certificates
+        // that contain public keys used to validate digital signatures on
+        // certificates and MUST mark the extension as critical in such
+        // certificates.
+        v3CertGen.addExtension(Extension.basicConstraints, isCA, new BasicConstraints(isCA));
 
         // RFC 5280 §4.2.1.3 Key Usage: When present, conforming CAs SHOULD mark this extension as critical.
         v3CertGen.addExtension(Extension.keyUsage, true, keyUsage);
