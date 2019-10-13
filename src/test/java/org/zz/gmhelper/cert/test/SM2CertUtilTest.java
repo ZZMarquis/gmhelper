@@ -28,12 +28,12 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 
 public class SM2CertUtilTest {
-    private static final String ROOT_PRI_PATH = "D:/test.root.ca.pri";
-    private static final String ROOT_CERT_PATH = "D:/test.root.ca.cer";
-    private static final String MID_PRI_PATH = "D:/test.mid.ca.pri";
-    private static final String MID_CERT_PATH = "D:/test.mid.ca.cer";
-    private static final String USER_PRI_PATH = "D:/test.user.pri";
-    private static final String USER_CERT_PATH = "D:/test.user.cer";
+    private static final String ROOT_PRI_PATH = "target/test.root.ca.pri";
+    private static final String ROOT_CERT_PATH = "target/test.root.ca.cer";
+    private static final String MID_PRI_PATH = "target/test.mid.ca.pri";
+    private static final String MID_CERT_PATH = "target/test.mid.ca.cer";
+    private static final String USER_PRI_PATH = "target/test.user.pri";
+    private static final String USER_CERT_PATH = "target/test.user.cer";
 
     static {
         Security.addProvider(new BouncyCastleProvider());
@@ -45,9 +45,9 @@ public class SM2CertUtilTest {
             //当前测试例依赖以下测试例生成的文件，所以先调用一下
             new SM2X509CertMakerTest().testMakeCertificate();
 
-            X509Certificate cert = SM2CertUtil.getX509Certificate("test.sm2.cer");
+            X509Certificate cert = SM2CertUtil.getX509Certificate("target/test.sm2.cer");
             BCECPublicKey pubKey = SM2CertUtil.getBCECPublicKey(cert);
-            byte[] priKeyData = FileUtil.readFile("test.sm2.pri");
+            byte[] priKeyData = FileUtil.readFile("target/test.sm2.pri");
             ECPrivateKeyParameters priKeyParameters = BCECUtil.convertSEC1ToECPrivateKey(priKeyData);
 
             byte[] sign = SM2Util.sign(priKeyParameters, GMBaseTest.WITH_ID, GMBaseTest.SRC_DATA);

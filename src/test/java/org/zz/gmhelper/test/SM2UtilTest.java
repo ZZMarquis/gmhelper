@@ -95,10 +95,10 @@ public class SM2UtilTest extends GMBaseTest {
             byte[] priKeyPkcs8Der = BCECUtil.convertECPrivateKeyToPKCS8(priKey, pubKey);
             System.out.println("private key pkcs8 der length:" + priKeyPkcs8Der.length);
             System.out.println("private key pkcs8 der:" + ByteUtils.toHexString(priKeyPkcs8Der));
-            FileUtil.writeFile("D:/ec.pkcs8.pri.der", priKeyPkcs8Der);
+            FileUtil.writeFile("target/ec.pkcs8.pri.der", priKeyPkcs8Der);
 
             String priKeyPkcs8Pem = BCECUtil.convertECPrivateKeyPKCS8ToPEM(priKeyPkcs8Der);
-            FileUtil.writeFile("D:/ec.pkcs8.pri.pem", priKeyPkcs8Pem.getBytes("UTF-8"));
+            FileUtil.writeFile("target/ec.pkcs8.pri.pem", priKeyPkcs8Pem.getBytes("UTF-8"));
             byte[] priKeyFromPem = BCECUtil.convertECPrivateKeyPEMToPKCS8(priKeyPkcs8Pem);
             if (!Arrays.equals(priKeyFromPem, priKeyPkcs8Der)) {
                 throw new Exception("priKeyFromPem != priKeyPkcs8Der");
@@ -109,15 +109,15 @@ public class SM2UtilTest extends GMBaseTest {
             byte[] priKeyPkcs1Der = BCECUtil.convertECPrivateKeyToSEC1(priKey, pubKey);
             System.out.println("private key pkcs1 der length:" + priKeyPkcs1Der.length);
             System.out.println("private key pkcs1 der:" + ByteUtils.toHexString(priKeyPkcs1Der));
-            FileUtil.writeFile("D:/ec.pkcs1.pri", priKeyPkcs1Der);
+            FileUtil.writeFile("target/ec.pkcs1.pri", priKeyPkcs1Der);
 
             byte[] pubKeyX509Der = BCECUtil.convertECPublicKeyToX509(pubKey);
             System.out.println("public key der length:" + pubKeyX509Der.length);
             System.out.println("public key der:" + ByteUtils.toHexString(pubKeyX509Der));
-            FileUtil.writeFile("D:/ec.x509.pub.der", pubKeyX509Der);
+            FileUtil.writeFile("target/ec.x509.pub.der", pubKeyX509Der);
 
             String pubKeyX509Pem = BCECUtil.convertECPublicKeyX509ToPEM(pubKeyX509Der);
-            FileUtil.writeFile("D:/ec.x509.pub.pem", pubKeyX509Pem.getBytes("UTF-8"));
+            FileUtil.writeFile("target/ec.x509.pub.pem", pubKeyX509Pem.getBytes("UTF-8"));
             byte[] pubKeyFromPem = BCECUtil.convertECPublicKeyPEMToX509(pubKeyX509Pem);
             if (!Arrays.equals(pubKeyFromPem, pubKeyX509Der)) {
                 throw new Exception("pubKeyFromPem != pubKeyX509Der");
@@ -184,7 +184,7 @@ public class SM2UtilTest extends GMBaseTest {
             byte[] encryptedData = SM2Util.encrypt(pubKey, SRC_DATA);
 
             byte[] derCipher = SM2Util.encodeSM2CipherToDER(encryptedData);
-            FileUtil.writeFile("derCipher.dat", derCipher);
+            FileUtil.writeFile("target/derCipher.dat", derCipher);
 
             byte[] decryptedData = SM2Util.decrypt(priKey, SM2Util.decodeDERSM2Cipher(derCipher));
             if (!Arrays.equals(decryptedData, SRC_DATA)) {

@@ -30,7 +30,7 @@ public class SM2PfxMakerTest {
     }
 
     private static final String TEST_PFX_PASSWD = "12345678";
-    private static final String TEST_PFX_FILENAME = "test.pfx";
+    private static final String TEST_PFX_FILENAME = "target/test.pfx";
 
     @Test
     public void testMakePfx() {
