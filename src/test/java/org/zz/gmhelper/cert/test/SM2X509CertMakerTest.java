@@ -15,7 +15,7 @@ import org.zz.gmhelper.BCECUtil;
 import org.zz.gmhelper.SM2Util;
 import org.zz.gmhelper.cert.CertSNAllocator;
 import org.zz.gmhelper.cert.CommonUtil;
-import org.zz.gmhelper.cert.FileSNAllocator;
+import org.zz.gmhelper.cert.RandomSNAllocator;
 import org.zz.gmhelper.cert.SM2PublicKey;
 import org.zz.gmhelper.cert.SM2X509CertMaker;
 import org.zz.gmhelper.cert.exception.InvalidX500NameException;
@@ -65,19 +65,19 @@ public class SM2X509CertMakerTest {
 
     public static X500Name buildSubjectDN() {
         X500NameBuilder builder = new X500NameBuilder(BCStyle.INSTANCE);
-        builder.addRDN(BCStyle.CN, "zz");
         builder.addRDN(BCStyle.C, "CN");
         builder.addRDN(BCStyle.O, "org.zz");
         builder.addRDN(BCStyle.OU, "org.zz");
+        builder.addRDN(BCStyle.CN, "zz");
         return builder.build();
     }
 
     public static X500Name buildRootCADN() {
         X500NameBuilder builder = new X500NameBuilder(BCStyle.INSTANCE);
-        builder.addRDN(BCStyle.CN, "ZZ Root CA");
         builder.addRDN(BCStyle.C, "CN");
         builder.addRDN(BCStyle.O, "org.zz");
         builder.addRDN(BCStyle.OU, "org.zz");
+        builder.addRDN(BCStyle.CN, "ZZ Root CA");
         return builder.build();
     }
 
@@ -86,7 +86,7 @@ public class SM2X509CertMakerTest {
         X500Name issuerName = buildRootCADN();
         KeyPair issKP = SM2Util.generateKeyPair();
         long certExpire = 20L * 365 * 24 * 60 * 60 * 1000; // 20年
-        CertSNAllocator snAllocator = new FileSNAllocator(); // 实际应用中可能需要使用数据库来维护证书序列号
+        CertSNAllocator snAllocator = new RandomSNAllocator(); // 实际应用中可能需要使用数据库来保证证书序列号的唯一性。
         return new SM2X509CertMaker(issKP, certExpire, issuerName, snAllocator);
     }
 }

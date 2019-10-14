@@ -15,7 +15,7 @@ import org.zz.gmhelper.BCECUtil;
 import org.zz.gmhelper.SM2Util;
 import org.zz.gmhelper.cert.CertSNAllocator;
 import org.zz.gmhelper.cert.CommonUtil;
-import org.zz.gmhelper.cert.FileSNAllocator;
+import org.zz.gmhelper.cert.RandomSNAllocator;
 import org.zz.gmhelper.cert.SM2CertUtil;
 import org.zz.gmhelper.cert.SM2PublicKey;
 import org.zz.gmhelper.cert.SM2X509CertMaker;
@@ -81,7 +81,7 @@ public class SM2CertUtilTest {
     public void testVerifyCertificate() {
         try {
             long certExpire = 20L * 365 * 24 * 60 * 60 * 1000;
-            CertSNAllocator snAllocator = new FileSNAllocator();
+            CertSNAllocator snAllocator = new RandomSNAllocator();
             KeyPair rootKP = SM2Util.generateKeyPair();
             X500Name rootDN = SM2X509CertMakerTest.buildRootCADN();
             SM2X509CertMaker rootCertMaker = new SM2X509CertMaker(rootKP, certExpire, rootDN, snAllocator);
@@ -149,10 +149,10 @@ public class SM2CertUtilTest {
 
     public static X500Name buildMidCADN() {
         X500NameBuilder builder = new X500NameBuilder(BCStyle.INSTANCE);
-        builder.addRDN(BCStyle.CN, "ZZ Intermediate CA");
         builder.addRDN(BCStyle.C, "CN");
         builder.addRDN(BCStyle.O, "org.zz");
         builder.addRDN(BCStyle.OU, "org.zz");
+        builder.addRDN(BCStyle.CN, "ZZ Intermediate CA");
         return builder.build();
     }
 }
