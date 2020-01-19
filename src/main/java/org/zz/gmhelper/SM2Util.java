@@ -12,6 +12,7 @@ import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.CryptoException;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.bouncycastle.crypto.engines.SM2Engine;
+import org.bouncycastle.crypto.engines.SM2Engine.Mode;
 import org.bouncycastle.crypto.params.ECDomainParameters;
 import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
 import org.bouncycastle.crypto.params.ECPublicKeyParameters;
@@ -103,43 +104,99 @@ public class SM2Util extends GMBaseUtil {
         return rawXY;
     }
 
+    /**
+     * @param pubKey
+     * @param srcData
+     * @return 默认输出C1C3C2顺序的密文
+     * @throws InvalidCipherTextException
+     */
     public static byte[] encrypt(BCECPublicKey pubKey, byte[] srcData) throws InvalidCipherTextException {
         ECPublicKeyParameters pubKeyParameters = BCECUtil.convertPublicKeyToParameters(pubKey);
-        return encrypt(pubKeyParameters, srcData);
+        return encrypt(Mode.C1C3C2, pubKeyParameters, srcData);
     }
 
     /**
-     * ECC公钥加密
-     *
-     * @param pubKeyParameters ECC公钥
-     * @param srcData          源数据
-     * @return SM2密文，实际包含三部分：ECC公钥、真正的密文、公钥和原文的SM3-HASH值
+     * @param mode    指定密文结构，旧标准的为C1C2C3，新的[《SM2密码算法使用规范》 GM/T 0009-2012]标准为C1C3C2
+     * @param pubKey
+     * @param srcData
+     * @return
+     * @throws InvalidCipherTextException
+     */
+    public static byte[] encrypt(Mode mode, BCECPublicKey pubKey, byte[] srcData) throws InvalidCipherTextException {
+        ECPublicKeyParameters pubKeyParameters = BCECUtil.convertPublicKeyToParameters(pubKey);
+        return encrypt(mode, pubKeyParameters, srcData);
+    }
+
+    /**
+     * @param pubKeyParameters
+     * @param srcData
+     * @return 默认输出C1C3C2顺序的密文
      * @throws InvalidCipherTextException
      */
     public static byte[] encrypt(ECPublicKeyParameters pubKeyParameters, byte[] srcData)
         throws InvalidCipherTextException {
-        SM2Engine engine = new SM2Engine();
+        return encrypt(Mode.C1C3C2, pubKeyParameters, srcData);
+    }
+
+    /**
+     * @param mode             指定密文结构，旧标准的为C1C2C3，新的[《SM2密码算法使用规范》 GM/T 0009-2012]标准为C1C3C2
+     * @param pubKeyParameters
+     * @param srcData
+     * @return
+     * @throws InvalidCipherTextException
+     */
+    public static byte[] encrypt(Mode mode, ECPublicKeyParameters pubKeyParameters, byte[] srcData)
+        throws InvalidCipherTextException {
+        SM2Engine engine = new SM2Engine(mode);
         ParametersWithRandom pwr = new ParametersWithRandom(pubKeyParameters, new SecureRandom());
         engine.init(true, pwr);
         return engine.processBlock(srcData, 0, srcData.length);
     }
 
+    /**
+     * @param priKey
+     * @param sm2Cipher 默认输入C1C3C2顺序的密文
+     * @return
+     * @throws InvalidCipherTextException
+     */
     public static byte[] decrypt(BCECPrivateKey priKey, byte[] sm2Cipher) throws InvalidCipherTextException {
         ECPrivateKeyParameters priKeyParameters = BCECUtil.convertPrivateKeyToParameters(priKey);
-        return decrypt(priKeyParameters, sm2Cipher);
+        return decrypt(Mode.C1C3C2, priKeyParameters, sm2Cipher);
     }
 
     /**
-     * ECC私钥解密
-     *
-     * @param priKeyParameters ECC私钥
-     * @param sm2Cipher        SM2密文，实际包含三部分：ECC公钥、真正的密文、公钥和原文的SM3-HASH值
-     * @return 原文
+     * @param mode      指定密文结构，旧标准的为C1C2C3，新的[《SM2密码算法使用规范》 GM/T 0009-2012]标准为C1C3C2
+     * @param priKey
+     * @param sm2Cipher
+     * @return
+     * @throws InvalidCipherTextException
+     */
+    public static byte[] decrypt(Mode mode, BCECPrivateKey priKey, byte[] sm2Cipher) throws InvalidCipherTextException {
+        ECPrivateKeyParameters priKeyParameters = BCECUtil.convertPrivateKeyToParameters(priKey);
+        return decrypt(mode, priKeyParameters, sm2Cipher);
+    }
+
+    /**
+     * @param priKeyParameters
+     * @param sm2Cipher        默认输入C1C3C2顺序的密文
+     * @return
      * @throws InvalidCipherTextException
      */
     public static byte[] decrypt(ECPrivateKeyParameters priKeyParameters, byte[] sm2Cipher)
         throws InvalidCipherTextException {
-        SM2Engine engine = new SM2Engine();
+        return decrypt(Mode.C1C3C2, priKeyParameters, sm2Cipher);
+    }
+
+    /**
+     * @param mode             指定密文结构，旧标准的为C1C2C3，新的[《SM2密码算法使用规范》 GM/T 0009-2012]标准为C1C3C2
+     * @param priKeyParameters
+     * @param sm2Cipher
+     * @return
+     * @throws InvalidCipherTextException
+     */
+    public static byte[] decrypt(Mode mode, ECPrivateKeyParameters priKeyParameters, byte[] sm2Cipher)
+        throws InvalidCipherTextException {
+        SM2Engine engine = new SM2Engine(mode);
         engine.init(false, priKeyParameters);
         return engine.processBlock(sm2Cipher, 0, sm2Cipher.length);
     }
@@ -147,30 +204,65 @@ public class SM2Util extends GMBaseUtil {
     /**
      * 分解SM2密文
      *
-     * @param cipherText SM2密文
+     * @param cipherText 默认输入C1C3C2顺序的密文
      * @return
+     * @throws Exception
      */
-    public static SM2Cipher parseSM2Cipher(byte[] cipherText) {
+    public static SM2Cipher parseSM2Cipher(byte[] cipherText) throws Exception {
         int curveLength = BCECUtil.getCurveLength(DOMAIN_PARAMS);
-        return parseSM2Cipher(curveLength, SM3_DIGEST_LENGTH, cipherText);
+        return parseSM2Cipher(Mode.C1C3C2, curveLength, SM3_DIGEST_LENGTH, cipherText);
     }
 
     /**
      * 分解SM2密文
      *
+     * @param mode       指定密文结构，旧标准的为C1C2C3，新的[《SM2密码算法使用规范》 GM/T 0009-2012]标准为C1C3C2
+     * @param cipherText
+     * @return
+     */
+    public static SM2Cipher parseSM2Cipher(Mode mode, byte[] cipherText) throws Exception {
+        int curveLength = BCECUtil.getCurveLength(DOMAIN_PARAMS);
+        return parseSM2Cipher(mode, curveLength, SM3_DIGEST_LENGTH, cipherText);
+    }
+
+    /**
+     * @param curveLength
+     * @param digestLength
+     * @param cipherText   默认输入C1C3C2顺序的密文
+     * @return
+     * @throws Exception
+     */
+    public static SM2Cipher parseSM2Cipher(int curveLength, int digestLength,
+        byte[] cipherText) throws Exception {
+        return parseSM2Cipher(Mode.C1C3C2, curveLength, digestLength, cipherText);
+    }
+
+    /**
+     * 分解SM2密文
+     *
+     * @param mode         指定密文结构，旧标准的为C1C2C3，新的[《SM2密码算法使用规范》 GM/T 0009-2012]标准为C1C3C2
      * @param curveLength  ECC曲线长度
      * @param digestLength HASH长度
      * @param cipherText   SM2密文
      * @return
      */
-    public static SM2Cipher parseSM2Cipher(int curveLength, int digestLength,
-        byte[] cipherText) {
+    public static SM2Cipher parseSM2Cipher(Mode mode, int curveLength, int digestLength,
+        byte[] cipherText) throws Exception {
         byte[] c1 = new byte[curveLength * 2 + 1];
-        System.arraycopy(cipherText, 0, c1, 0, c1.length);
         byte[] c2 = new byte[cipherText.length - c1.length - digestLength];
-        System.arraycopy(cipherText, c1.length, c2, 0, c2.length);
         byte[] c3 = new byte[digestLength];
-        System.arraycopy(cipherText, c1.length + c2.length, c3, 0, c3.length);
+
+        System.arraycopy(cipherText, 0, c1, 0, c1.length);
+        if (mode == Mode.C1C2C3) {
+            System.arraycopy(cipherText, c1.length, c2, 0, c2.length);
+            System.arraycopy(cipherText, c1.length + c2.length, c3, 0, c3.length);
+        } else if (mode == Mode.C1C3C2) {
+            System.arraycopy(cipherText, c1.length, c3, 0, c3.length);
+            System.arraycopy(cipherText, c1.length + c3.length, c2, 0, c2.length);
+        } else {
+            throw new Exception("Unsupported mode:" + mode);
+        }
+
         SM2Cipher result = new SM2Cipher();
         result.setC1(c1);
         result.setC2(c2);
@@ -180,90 +272,141 @@ public class SM2Util extends GMBaseUtil {
     }
 
     /**
-     * DER编码C1C2C3密文（根据《SM2密码算法使用规范》 GM/T 0009-2012）
+     * DER编码
      *
-     * @param cipher
-     * @return
+     * @param cipher 默认输入C1C3C2顺序的密文
+     * @return 默认输出按C1C3C2编码的结果
      * @throws IOException
      */
-    public static byte[] encodeSM2CipherToDER(byte[] cipher) throws IOException {
+    public static byte[] encodeSM2CipherToDER(byte[] cipher) throws Exception {
         int curveLength = BCECUtil.getCurveLength(DOMAIN_PARAMS);
-        return encodeSM2CipherToDER(curveLength, SM3_DIGEST_LENGTH, cipher);
+        return encodeSM2CipherToDER(Mode.C1C3C2, curveLength, SM3_DIGEST_LENGTH, cipher);
     }
 
     /**
-     * DER编码C1C2C3密文（根据《SM2密码算法使用规范》 GM/T 0009-2012）
-     *
+     * @param mode   指定密文结构，旧标准的为C1C2C3，新的[《SM2密码算法使用规范》 GM/T 0009-2012]标准为C1C3C2
+     * @param cipher
+     * @return 按指定的mode输出相应的编码结果
+     * @throws Exception
+     */
+    public static byte[] encodeSM2CipherToDER(Mode mode, byte[] cipher) throws Exception {
+        int curveLength = BCECUtil.getCurveLength(DOMAIN_PARAMS);
+        return encodeSM2CipherToDER(mode, curveLength, SM3_DIGEST_LENGTH, cipher);
+    }
+
+    /**
      * @param curveLength
      * @param digestLength
-     * @param cipher
-     * @return
+     * @param cipher       默认输入C1C3C2顺序的密文
+     * @return 默认输出按C1C3C2编码的结果
      * @throws IOException
      */
     public static byte[] encodeSM2CipherToDER(int curveLength, int digestLength, byte[] cipher)
-        throws IOException {
-        int startPos = 1;
+        throws Exception {
+        return encodeSM2CipherToDER(Mode.C1C3C2, curveLength, digestLength, cipher);
+    }
+
+    /**
+     * @param mode         指定密文结构，旧标准的为C1C2C3，新的[《SM2密码算法使用规范》 GM/T 0009-2012]标准为C1C3C2
+     * @param curveLength
+     * @param digestLength
+     * @param cipher
+     * @return 按指定的mode输出相应的编码结果
+     * @throws Exception
+     */
+    public static byte[] encodeSM2CipherToDER(Mode mode, int curveLength, int digestLength, byte[] cipher)
+        throws Exception {
 
         byte[] c1x = new byte[curveLength];
+        byte[] c1y = new byte[curveLength];
+        byte[] c2 = new byte[cipher.length - c1x.length - c1y.length - 1 - digestLength];
+        byte[] c3 = new byte[digestLength];
+
+        int startPos = 1;
         System.arraycopy(cipher, startPos, c1x, 0, c1x.length);
         startPos += c1x.length;
-
-        byte[] c1y = new byte[curveLength];
         System.arraycopy(cipher, startPos, c1y, 0, c1y.length);
         startPos += c1y.length;
-
-        byte[] c2 = new byte[cipher.length - c1x.length - c1y.length - 1 - digestLength];
-        System.arraycopy(cipher, startPos, c2, 0, c2.length);
-        startPos += c2.length;
-
-        byte[] c3 = new byte[digestLength];
-        System.arraycopy(cipher, startPos, c3, 0, c3.length);
+        if (mode == Mode.C1C2C3) {
+            System.arraycopy(cipher, startPos, c2, 0, c2.length);
+            startPos += c2.length;
+            System.arraycopy(cipher, startPos, c3, 0, c3.length);
+        } else if (mode == Mode.C1C3C2) {
+            System.arraycopy(cipher, startPos, c3, 0, c3.length);
+            startPos += c3.length;
+            System.arraycopy(cipher, startPos, c2, 0, c2.length);
+        } else {
+            throw new Exception("Unsupported mode:" + mode);
+        }
 
         ASN1Encodable[] arr = new ASN1Encodable[4];
         arr[0] = new ASN1Integer(c1x);
         arr[1] = new ASN1Integer(c1y);
-        arr[2] = new DEROctetString(c3);
-        arr[3] = new DEROctetString(c2);
+        if (mode == Mode.C1C2C3) {
+            arr[2] = new DEROctetString(c2);
+            arr[3] = new DEROctetString(c3);
+        } else if (mode == Mode.C1C3C2) {
+            arr[2] = new DEROctetString(c3);
+            arr[3] = new DEROctetString(c2);
+        }
         DERSequence ds = new DERSequence(arr);
         return ds.getEncoded(ASN1Encoding.DER);
     }
 
     /**
-     * 解DER编码密文（根据《SM2密码算法使用规范》 GM/T 0009-2012）
+     * 解码DER密文
      *
-     * @param derCipher
-     * @return
+     * @param derCipher 默认输入按C1C3C2顺序编码的密文
+     * @return 输出按C1C3C2排列的字节数组
      */
-    public static byte[] decodeDERSM2Cipher(byte[] derCipher) {
+    public static byte[] decodeDERSM2Cipher(byte[] derCipher) throws Exception {
+        return decodeDERSM2Cipher(Mode.C1C3C2, derCipher);
+    }
+
+    /**
+     * @param mode      指定密文结构，旧标准的为C1C2C3，新的[《SM2密码算法使用规范》 GM/T 0009-2012]标准为C1C3C2
+     * @param derCipher
+     * @return 按指定的mode输出相应的解码结果
+     * @throws Exception
+     */
+    public static byte[] decodeDERSM2Cipher(Mode mode, byte[] derCipher) throws Exception {
         ASN1Sequence as = DERSequence.getInstance(derCipher);
         byte[] c1x = ((ASN1Integer) as.getObjectAt(0)).getValue().toByteArray();
         byte[] c1y = ((ASN1Integer) as.getObjectAt(1)).getValue().toByteArray();
-        byte[] c3 = ((DEROctetString) as.getObjectAt(2)).getOctets();
-        byte[] c2 = ((DEROctetString) as.getObjectAt(3)).getOctets();
+        byte[] c3;
+        byte[] c2;
+        if (mode == Mode.C1C2C3) {
+            c2 = ((DEROctetString) as.getObjectAt(2)).getOctets();
+            c3 = ((DEROctetString) as.getObjectAt(3)).getOctets();
+        } else if (mode == Mode.C1C3C2) {
+            c3 = ((DEROctetString) as.getObjectAt(2)).getOctets();
+            c2 = ((DEROctetString) as.getObjectAt(3)).getOctets();
+        } else {
+            throw new Exception("Unsupported mode:" + mode);
+        }
 
         int pos = 0;
         byte[] cipherText = new byte[1 + c1x.length + c1y.length + c2.length + c3.length];
-
         final byte uncompressedFlag = 0x04;
         cipherText[0] = uncompressedFlag;
         pos += 1;
-
         System.arraycopy(c1x, 0, cipherText, pos, c1x.length);
         pos += c1x.length;
-
         System.arraycopy(c1y, 0, cipherText, pos, c1y.length);
         pos += c1y.length;
-
-        System.arraycopy(c2, 0, cipherText, pos, c2.length);
-        pos += c2.length;
-
-        System.arraycopy(c3, 0, cipherText, pos, c3.length);
-
+        if (mode == Mode.C1C2C3) {
+            System.arraycopy(c2, 0, cipherText, pos, c2.length);
+            pos += c2.length;
+            System.arraycopy(c3, 0, cipherText, pos, c3.length);
+        } else if (mode == Mode.C1C3C2) {
+            System.arraycopy(c3, 0, cipherText, pos, c3.length);
+            pos += c3.length;
+            System.arraycopy(c2, 0, cipherText, pos, c2.length);
+        }
         return cipherText;
     }
 
-    public static byte[] sign(BCECPrivateKey priKey, byte[] srcData) throws NoSuchAlgorithmException,
-        NoSuchProviderException, CryptoException {
+    public static byte[] sign(BCECPrivateKey priKey, byte[] srcData) throws CryptoException {
         ECPrivateKeyParameters priKeyParameters = BCECUtil.convertPrivateKeyToParameters(priKey);
         return sign(priKeyParameters, null, srcData);
     }

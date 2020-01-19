@@ -15,6 +15,7 @@ import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.asn1.x9.X962Parameters;
 import org.bouncycastle.asn1.x9.X9ECParameters;
+import org.bouncycastle.asn1.x9.X9ECPoint;
 import org.bouncycastle.asn1.x9.X9ObjectIdentifiers;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.generators.ECKeyPairGenerator;
@@ -406,10 +407,20 @@ public class BCECUtil {
 
             X9ECParameters ecP = new X9ECParameters(
                 curve,
+                new X9ECPoint(EC5Util.convertPoint(curve, ecSpec.getGenerator()), withCompression),
+                ecSpec.getOrder(),
+                BigInteger.valueOf(ecSpec.getCofactor()),
+                ecSpec.getCurve().getSeed());
+
+            //// 如果是1.62或更低版本的bcprov-jdk15on应该使用以下这段代码，因为高版本的EC5Util.convertPoint没有向下兼容
+            /*
+            X9ECParameters ecP = new X9ECParameters(
+                curve,
                 EC5Util.convertPoint(curve, ecSpec.getGenerator(), withCompression),
                 ecSpec.getOrder(),
                 BigInteger.valueOf(ecSpec.getCofactor()),
                 ecSpec.getCurve().getSeed());
+            */
 
             params = new X962Parameters(ecP);
         }

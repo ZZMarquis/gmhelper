@@ -1,6 +1,8 @@
 package org.zz.gmhelper.test;
 
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
+import org.bouncycastle.crypto.engines.SM2Engine;
+import org.bouncycastle.crypto.engines.SM2Engine.Mode;
 import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
 import org.bouncycastle.crypto.params.ECPublicKeyParameters;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
@@ -75,6 +77,35 @@ public class SM2UtilTest extends GMBaseTest {
             byte[] encryptedData = SM2Util.encrypt(pubKey, SRC_DATA);
             System.out.println("SM2 encrypt result:\n" + ByteUtils.toHexString(encryptedData));
             byte[] decryptedData = SM2Util.decrypt(priKey, encryptedData);
+            System.out.println("SM2 decrypt result:\n" + ByteUtils.toHexString(decryptedData));
+            if (!Arrays.equals(decryptedData, SRC_DATA)) {
+                Assert.fail();
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void testEncryptAndDecrypt_C1C2C3() {
+        try {
+            AsymmetricCipherKeyPair keyPair = SM2Util.generateKeyPairParameter();
+            ECPrivateKeyParameters priKey = (ECPrivateKeyParameters) keyPair.getPrivate();
+            ECPublicKeyParameters pubKey = (ECPublicKeyParameters) keyPair.getPublic();
+
+            System.out.println("Pri Hex:"
+                + ByteUtils.toHexString(priKey.getD().toByteArray()).toUpperCase());
+            System.out.println("Pub X Hex:"
+                + ByteUtils.toHexString(pubKey.getQ().getAffineXCoord().getEncoded()).toUpperCase());
+            System.out.println("Pub X Hex:"
+                + ByteUtils.toHexString(pubKey.getQ().getAffineYCoord().getEncoded()).toUpperCase());
+            System.out.println("Pub Point Hex:"
+                + ByteUtils.toHexString(pubKey.getQ().getEncoded(false)).toUpperCase());
+
+            byte[] encryptedData = SM2Util.encrypt(Mode.C1C2C3, pubKey, SRC_DATA);
+            System.out.println("SM2 encrypt result:\n" + ByteUtils.toHexString(encryptedData));
+            byte[] decryptedData = SM2Util.decrypt(Mode.C1C2C3, priKey, encryptedData);
             System.out.println("SM2 decrypt result:\n" + ByteUtils.toHexString(decryptedData));
             if (!Arrays.equals(decryptedData, SRC_DATA)) {
                 Assert.fail();
@@ -187,6 +218,30 @@ public class SM2UtilTest extends GMBaseTest {
             FileUtil.writeFile("target/derCipher.dat", derCipher);
 
             byte[] decryptedData = SM2Util.decrypt(priKey, SM2Util.decodeDERSM2Cipher(derCipher));
+            if (!Arrays.equals(decryptedData, SRC_DATA)) {
+                Assert.fail();
+            }
+
+            Assert.assertTrue(true);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void testEncodeSM2CipherToDER_C1C2C3() {
+        try {
+            AsymmetricCipherKeyPair keyPair = SM2Util.generateKeyPairParameter();
+            ECPrivateKeyParameters priKey = (ECPrivateKeyParameters) keyPair.getPrivate();
+            ECPublicKeyParameters pubKey = (ECPublicKeyParameters) keyPair.getPublic();
+
+            byte[] encryptedData = SM2Util.encrypt(Mode.C1C2C3, pubKey, SRC_DATA);
+
+            byte[] derCipher = SM2Util.encodeSM2CipherToDER(Mode.C1C2C3, encryptedData);
+            FileUtil.writeFile("derCipher_c1c2c3.dat", derCipher);
+
+            byte[] decryptedData = SM2Util.decrypt(Mode.C1C2C3, priKey, SM2Util.decodeDERSM2Cipher(Mode.C1C2C3, derCipher));
             if (!Arrays.equals(decryptedData, SRC_DATA)) {
                 Assert.fail();
             }
