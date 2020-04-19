@@ -74,11 +74,11 @@ public class SM2UtilTest extends GMBaseTest {
             System.out.println("Pub Point Hex:"
                 + ByteUtils.toHexString(pubKey.getQ().getEncoded(false)).toUpperCase());
 
-            byte[] encryptedData = SM2Util.encrypt(pubKey, SRC_DATA);
+            byte[] encryptedData = SM2Util.encrypt(pubKey, SRC_DATA_24B);
             System.out.println("SM2 encrypt result:\n" + ByteUtils.toHexString(encryptedData));
             byte[] decryptedData = SM2Util.decrypt(priKey, encryptedData);
             System.out.println("SM2 decrypt result:\n" + ByteUtils.toHexString(decryptedData));
-            if (!Arrays.equals(decryptedData, SRC_DATA)) {
+            if (!Arrays.equals(decryptedData, SRC_DATA_24B)) {
                 Assert.fail();
             }
         } catch (Exception ex) {
@@ -103,11 +103,11 @@ public class SM2UtilTest extends GMBaseTest {
             System.out.println("Pub Point Hex:"
                 + ByteUtils.toHexString(pubKey.getQ().getEncoded(false)).toUpperCase());
 
-            byte[] encryptedData = SM2Util.encrypt(Mode.C1C2C3, pubKey, SRC_DATA);
+            byte[] encryptedData = SM2Util.encrypt(Mode.C1C3C2, pubKey, SRC_DATA_48B);
             System.out.println("SM2 encrypt result:\n" + ByteUtils.toHexString(encryptedData));
-            byte[] decryptedData = SM2Util.decrypt(Mode.C1C2C3, priKey, encryptedData);
+            byte[] decryptedData = SM2Util.decrypt(Mode.C1C3C2, priKey, encryptedData);
             System.out.println("SM2 decrypt result:\n" + ByteUtils.toHexString(decryptedData));
-            if (!Arrays.equals(decryptedData, SRC_DATA)) {
+            if (!Arrays.equals(decryptedData, SRC_DATA_48B)) {
                 Assert.fail();
             }
         } catch (Exception ex) {
