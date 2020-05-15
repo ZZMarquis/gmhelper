@@ -45,10 +45,24 @@ public class SM2PreprocessSigner implements ECConstants {
     private ECKeyParameters ecKey;
     private byte[] userID;
 
+    /**
+     * 初始化
+     *
+     * @param forSigning true表示用于签名，false表示用于验签
+     * @param param
+     */
     public void init(boolean forSigning, CipherParameters param) {
         init(forSigning, new SM3Digest(), param);
     }
 
+    /**
+     * 初始化
+     *
+     * @param forSigning true表示用于签名，false表示用于验签
+     * @param digest     SM2算法的话，一般是采用SM3摘要算法
+     * @param param
+     * @throws RuntimeException
+     */
     public void init(boolean forSigning, Digest digest, CipherParameters param) throws RuntimeException {
         CipherParameters baseParam;
 
@@ -90,6 +104,7 @@ public class SM2PreprocessSigner implements ECConstants {
      * ZA=H256(ENT LA ∥ IDA ∥ a ∥ b ∥ xG ∥yG ∥ xA ∥ yA)。
      * M=ZA ∥ M；
      * e = Hv(M)
+     *
      * @return
      */
     public byte[] preprocess(byte[] m, int off, int len) {
@@ -246,7 +261,7 @@ public class SM2PreprocessSigner implements ECConstants {
     }
 
     protected BigInteger[] derDecode(byte[] encoding)
-        throws IOException {
+            throws IOException {
         ASN1Sequence seq = ASN1Sequence.getInstance(ASN1Primitive.fromByteArray(encoding));
         if (seq.size() != 2) {
             return null;
@@ -264,7 +279,7 @@ public class SM2PreprocessSigner implements ECConstants {
     }
 
     protected byte[] derEncode(BigInteger r, BigInteger s)
-        throws IOException {
+            throws IOException {
 
         ASN1EncodableVector v = new ASN1EncodableVector();
         v.add(new ASN1Integer(r));

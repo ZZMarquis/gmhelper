@@ -46,20 +46,20 @@ public class SM2Util extends GMBaseUtil {
     public final static BigInteger SM2_ECC_N = CURVE.getOrder();
     public final static BigInteger SM2_ECC_H = CURVE.getCofactor();
     public final static BigInteger SM2_ECC_GX = new BigInteger(
-        "32C4AE2C1F1981195F9904466A39C9948FE30BBFF2660BE1715A4589334C74C7", 16);
+            "32C4AE2C1F1981195F9904466A39C9948FE30BBFF2660BE1715A4589334C74C7", 16);
     public final static BigInteger SM2_ECC_GY = new BigInteger(
-        "BC3736A2F4F6779C59BDCEE36B692153D0A9877CC62A474002DF32E52139F0A0", 16);
+            "BC3736A2F4F6779C59BDCEE36B692153D0A9877CC62A474002DF32E52139F0A0", 16);
     public static final ECPoint G_POINT = CURVE.createPoint(SM2_ECC_GX, SM2_ECC_GY);
     public static final ECDomainParameters DOMAIN_PARAMS = new ECDomainParameters(CURVE, G_POINT,
-        SM2_ECC_N, SM2_ECC_H);
+            SM2_ECC_N, SM2_ECC_H);
     public static final int CURVE_LEN = BCECUtil.getCurveLength(DOMAIN_PARAMS);
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static final EllipticCurve JDK_CURVE = new EllipticCurve(new ECFieldFp(SM2_ECC_P), SM2_ECC_A, SM2_ECC_B);
     public static final java.security.spec.ECPoint JDK_G_POINT = new java.security.spec.ECPoint(
-        G_POINT.getAffineXCoord().toBigInteger(), G_POINT.getAffineYCoord().toBigInteger());
+            G_POINT.getAffineXCoord().toBigInteger(), G_POINT.getAffineYCoord().toBigInteger());
     public static final java.security.spec.ECParameterSpec JDK_EC_SPEC = new java.security.spec.ECParameterSpec(
-        JDK_CURVE, JDK_G_POINT, SM2_ECC_N, SM2_ECC_H.intValue());
+            JDK_CURVE, JDK_G_POINT, SM2_ECC_N, SM2_ECC_H.intValue());
 
     //////////////////////////////////////////////////////////////////////////////////////
 
@@ -75,14 +75,22 @@ public class SM2Util extends GMBaseUtil {
         return BCECUtil.generateKeyPairParameter(DOMAIN_PARAMS, random);
     }
 
+    /**
+     * 生成ECC密钥对
+     *
+     * @return
+     * @throws NoSuchProviderException
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidAlgorithmParameterException
+     */
     public static KeyPair generateKeyPair() throws NoSuchProviderException, NoSuchAlgorithmException,
-        InvalidAlgorithmParameterException {
+            InvalidAlgorithmParameterException {
         SecureRandom random = new SecureRandom();
         return BCECUtil.generateKeyPair(DOMAIN_PARAMS, random);
     }
 
     /**
-     * 只获取私钥里的d，32字节
+     * 只获取私钥里的d值，32字节
      *
      * @param privateKey
      * @return
@@ -95,7 +103,7 @@ public class SM2Util extends GMBaseUtil {
      * 只获取公钥里的XY分量，64字节
      *
      * @param publicKey
-     * @return
+     * @return 64字节数组
      */
     public static byte[] getRawPublicKey(BCECPublicKey publicKey) {
         byte[] src65 = publicKey.getQ().getEncoded(false);
@@ -105,9 +113,9 @@ public class SM2Util extends GMBaseUtil {
     }
 
     /**
-     * @param pubKey
-     * @param srcData
-     * @return 默认输出C1C3C2顺序的密文
+     * @param pubKey  公钥
+     * @param srcData 原文
+     * @return 默认输出C1C3C2顺序的密文。C1为65字节第1字节为压缩标识，这里固定为0x04，后面64字节为xy分量各32字节。C3为32字节。C2长度与原文一致。
      * @throws InvalidCipherTextException
      */
     public static byte[] encrypt(BCECPublicKey pubKey, byte[] srcData) throws InvalidCipherTextException {
@@ -117,9 +125,9 @@ public class SM2Util extends GMBaseUtil {
 
     /**
      * @param mode    指定密文结构，旧标准的为C1C2C3，新的[《SM2密码算法使用规范》 GM/T 0009-2012]标准为C1C3C2
-     * @param pubKey
-     * @param srcData
-     * @return
+     * @param pubKey  公钥
+     * @param srcData 原文
+     * @return 根据mode不同，输出的密文C1C2C3排列顺序不同。C1为65字节第1字节为压缩标识，这里固定为0x04，后面64字节为xy分量各32字节。C3为32字节。C2长度与原文一致。
      * @throws InvalidCipherTextException
      */
     public static byte[] encrypt(Mode mode, BCECPublicKey pubKey, byte[] srcData) throws InvalidCipherTextException {
@@ -128,25 +136,25 @@ public class SM2Util extends GMBaseUtil {
     }
 
     /**
-     * @param pubKeyParameters
-     * @param srcData
-     * @return 默认输出C1C3C2顺序的密文
+     * @param pubKeyParameters 公钥
+     * @param srcData          原文
+     * @return 默认输出C1C3C2顺序的密文。C1为65字节第1字节为压缩标识，这里固定为0x04，后面64字节为xy分量各32字节。C3为32字节。C2长度与原文一致。
      * @throws InvalidCipherTextException
      */
     public static byte[] encrypt(ECPublicKeyParameters pubKeyParameters, byte[] srcData)
-        throws InvalidCipherTextException {
+            throws InvalidCipherTextException {
         return encrypt(Mode.C1C3C2, pubKeyParameters, srcData);
     }
 
     /**
      * @param mode             指定密文结构，旧标准的为C1C2C3，新的[《SM2密码算法使用规范》 GM/T 0009-2012]标准为C1C3C2
-     * @param pubKeyParameters
-     * @param srcData
-     * @return
+     * @param pubKeyParameters 公钥
+     * @param srcData          原文
+     * @return 根据mode不同，输出的密文C1C2C3排列顺序不同。C1为65字节第1字节为压缩标识，这里固定为0x04，后面64字节为xy分量各32字节。C3为32字节。C2长度与原文一致。
      * @throws InvalidCipherTextException
      */
     public static byte[] encrypt(Mode mode, ECPublicKeyParameters pubKeyParameters, byte[] srcData)
-        throws InvalidCipherTextException {
+            throws InvalidCipherTextException {
         SM2Engine engine = new SM2Engine(mode);
         ParametersWithRandom pwr = new ParametersWithRandom(pubKeyParameters, new SecureRandom());
         engine.init(true, pwr);
@@ -154,9 +162,9 @@ public class SM2Util extends GMBaseUtil {
     }
 
     /**
-     * @param priKey
-     * @param sm2Cipher 默认输入C1C3C2顺序的密文
-     * @return
+     * @param priKey    私钥
+     * @param sm2Cipher 默认输入C1C3C2顺序的密文。C1为65字节第1字节为压缩标识，这里固定为0x04，后面64字节为xy分量各32字节。C3为32字节。C2长度与原文一致。
+     * @return 原文。SM2解密返回了数据则一定是原文，因为SM2自带校验，如果密文被篡改或者密钥对不上，都是会直接报异常的。
      * @throws InvalidCipherTextException
      */
     public static byte[] decrypt(BCECPrivateKey priKey, byte[] sm2Cipher) throws InvalidCipherTextException {
@@ -166,9 +174,9 @@ public class SM2Util extends GMBaseUtil {
 
     /**
      * @param mode      指定密文结构，旧标准的为C1C2C3，新的[《SM2密码算法使用规范》 GM/T 0009-2012]标准为C1C3C2
-     * @param priKey
-     * @param sm2Cipher
-     * @return
+     * @param priKey    私钥
+     * @param sm2Cipher 根据mode不同，需要输入的密文C1C2C3排列顺序不同。C1为65字节第1字节为压缩标识，这里固定为0x04，后面64字节为xy分量各32字节。C3为32字节。C2长度与原文一致。
+     * @return 原文。SM2解密返回了数据则一定是原文，因为SM2自带校验，如果密文被篡改或者密钥对不上，都是会直接报异常的。
      * @throws InvalidCipherTextException
      */
     public static byte[] decrypt(Mode mode, BCECPrivateKey priKey, byte[] sm2Cipher) throws InvalidCipherTextException {
@@ -177,25 +185,25 @@ public class SM2Util extends GMBaseUtil {
     }
 
     /**
-     * @param priKeyParameters
-     * @param sm2Cipher        默认输入C1C3C2顺序的密文
-     * @return
+     * @param priKeyParameters 私钥
+     * @param sm2Cipher        默认输入C1C3C2顺序的密文。C1为65字节第1字节为压缩标识，这里固定为0x04，后面64字节为xy分量各32字节。C3为32字节。C2长度与原文一致。
+     * @return 原文。SM2解密返回了数据则一定是原文，因为SM2自带校验，如果密文被篡改或者密钥对不上，都是会直接报异常的。
      * @throws InvalidCipherTextException
      */
     public static byte[] decrypt(ECPrivateKeyParameters priKeyParameters, byte[] sm2Cipher)
-        throws InvalidCipherTextException {
+            throws InvalidCipherTextException {
         return decrypt(Mode.C1C3C2, priKeyParameters, sm2Cipher);
     }
 
     /**
      * @param mode             指定密文结构，旧标准的为C1C2C3，新的[《SM2密码算法使用规范》 GM/T 0009-2012]标准为C1C3C2
-     * @param priKeyParameters
-     * @param sm2Cipher
-     * @return
+     * @param priKeyParameters 私钥
+     * @param sm2Cipher        根据mode不同，需要输入的密文C1C2C3排列顺序不同。C1为65字节第1字节为压缩标识，这里固定为0x04，后面64字节为xy分量各32字节。C3为32字节。C2长度与原文一致。
+     * @return 原文。SM2解密返回了数据则一定是原文，因为SM2自带校验，如果密文被篡改或者密钥对不上，都是会直接报异常的。
      * @throws InvalidCipherTextException
      */
     public static byte[] decrypt(Mode mode, ECPrivateKeyParameters priKeyParameters, byte[] sm2Cipher)
-        throws InvalidCipherTextException {
+            throws InvalidCipherTextException {
         SM2Engine engine = new SM2Engine(mode);
         engine.init(false, priKeyParameters);
         return engine.processBlock(sm2Cipher, 0, sm2Cipher.length);
@@ -204,7 +212,7 @@ public class SM2Util extends GMBaseUtil {
     /**
      * 分解SM2密文
      *
-     * @param cipherText 默认输入C1C3C2顺序的密文
+     * @param cipherText 默认输入C1C3C2顺序的密文。C1为65字节第1字节为压缩标识，这里固定为0x04，后面64字节为xy分量各32字节。C3为32字节。C2长度与原文一致。
      * @return
      * @throws Exception
      */
@@ -217,7 +225,7 @@ public class SM2Util extends GMBaseUtil {
      * 分解SM2密文
      *
      * @param mode       指定密文结构，旧标准的为C1C2C3，新的[《SM2密码算法使用规范》 GM/T 0009-2012]标准为C1C3C2
-     * @param cipherText
+     * @param cipherText 根据mode不同，需要输入的密文C1C2C3排列顺序不同。C1为65字节第1字节为压缩标识，这里固定为0x04，后面64字节为xy分量各32字节。C3为32字节。C2长度与原文一致。
      * @return
      */
     public static SM2Cipher parseSM2Cipher(Mode mode, byte[] cipherText) throws Exception {
@@ -226,14 +234,14 @@ public class SM2Util extends GMBaseUtil {
     }
 
     /**
-     * @param curveLength
-     * @param digestLength
-     * @param cipherText   默认输入C1C3C2顺序的密文
+     * @param curveLength  曲线长度，SM2的话就是256位。
+     * @param digestLength 摘要长度，如果是SM2的话因为默认使用SM3摘要，SM3摘要长度为32字节。
+     * @param cipherText   默认输入C1C3C2顺序的密文。C1为65字节第1字节为压缩标识，这里固定为0x04，后面64字节为xy分量各32字节。C3为32字节。C2长度与原文一致。
      * @return
      * @throws Exception
      */
-    public static SM2Cipher parseSM2Cipher(int curveLength, int digestLength,
-        byte[] cipherText) throws Exception {
+    public static SM2Cipher parseSM2Cipher(
+            int curveLength, int digestLength, byte[] cipherText) throws Exception {
         return parseSM2Cipher(Mode.C1C3C2, curveLength, digestLength, cipherText);
     }
 
@@ -241,13 +249,13 @@ public class SM2Util extends GMBaseUtil {
      * 分解SM2密文
      *
      * @param mode         指定密文结构，旧标准的为C1C2C3，新的[《SM2密码算法使用规范》 GM/T 0009-2012]标准为C1C3C2
-     * @param curveLength  ECC曲线长度
-     * @param digestLength HASH长度
-     * @param cipherText   SM2密文
+     * @param curveLength  曲线长度，SM2的话就是256位。
+     * @param digestLength 摘要长度，如果是SM2的话因为默认使用SM3摘要，SM3摘要长度为32字节。
+     * @param cipherText   根据mode不同，需要输入的密文C1C2C3排列顺序不同。C1为65字节第1字节为压缩标识，这里固定为0x04，后面64字节为xy分量各32字节。C3为32字节。C2长度与原文一致。
      * @return
      */
     public static SM2Cipher parseSM2Cipher(Mode mode, int curveLength, int digestLength,
-        byte[] cipherText) throws Exception {
+                                           byte[] cipherText) throws Exception {
         byte[] c1 = new byte[curveLength * 2 + 1];
         byte[] c2 = new byte[cipherText.length - c1.length - digestLength];
         byte[] c3 = new byte[digestLength];
@@ -272,10 +280,10 @@ public class SM2Util extends GMBaseUtil {
     }
 
     /**
-     * DER编码
+     * DER编码密文
      *
-     * @param cipher 默认输入C1C3C2顺序的密文
-     * @return 默认输出按C1C3C2编码的结果
+     * @param cipher 默认输入C1C3C2顺序的密文。C1为65字节第1字节为压缩标识，这里固定为0x04，后面64字节为xy分量各32字节。C3为32字节。C2长度与原文一致。
+     * @return DER编码后的密文
      * @throws IOException
      */
     public static byte[] encodeSM2CipherToDER(byte[] cipher) throws Exception {
@@ -284,9 +292,11 @@ public class SM2Util extends GMBaseUtil {
     }
 
     /**
+     * DER编码密文
+     *
      * @param mode   指定密文结构，旧标准的为C1C2C3，新的[《SM2密码算法使用规范》 GM/T 0009-2012]标准为C1C3C2
-     * @param cipher
-     * @return 按指定的mode输出相应的编码结果
+     * @param cipher 根据mode不同，需要输入的密文C1C2C3排列顺序不同。C1为65字节第1字节为压缩标识，这里固定为0x04，后面64字节为xy分量各32字节。C3为32字节。C2长度与原文一致。
+     * @return 按指定mode DER编码后的密文
      * @throws Exception
      */
     public static byte[] encodeSM2CipherToDER(Mode mode, byte[] cipher) throws Exception {
@@ -295,27 +305,29 @@ public class SM2Util extends GMBaseUtil {
     }
 
     /**
-     * @param curveLength
-     * @param digestLength
-     * @param cipher       默认输入C1C3C2顺序的密文
+     * DER编码密文
+     *
+     * @param curveLength  曲线长度，SM2的话就是256位。
+     * @param digestLength 摘要长度，如果是SM2的话因为默认使用SM3摘要，SM3摘要长度为32字节。
+     * @param cipher       默认输入C1C3C2顺序的密文。C1为65字节第1字节为压缩标识，这里固定为0x04，后面64字节为xy分量各32字节。C3为32字节。C2长度与原文一致。
      * @return 默认输出按C1C3C2编码的结果
      * @throws IOException
      */
     public static byte[] encodeSM2CipherToDER(int curveLength, int digestLength, byte[] cipher)
-        throws Exception {
+            throws Exception {
         return encodeSM2CipherToDER(Mode.C1C3C2, curveLength, digestLength, cipher);
     }
 
     /**
      * @param mode         指定密文结构，旧标准的为C1C2C3，新的[《SM2密码算法使用规范》 GM/T 0009-2012]标准为C1C3C2
-     * @param curveLength
-     * @param digestLength
-     * @param cipher
-     * @return 按指定的mode输出相应的编码结果
+     * @param curveLength  曲线长度，SM2的话就是256位。
+     * @param digestLength 摘要长度，如果是SM2的话因为默认使用SM3摘要，SM3摘要长度为32字节。
+     * @param cipher       根据mode不同，需要输入的密文C1C2C3排列顺序不同。C1为65字节第1字节为压缩标识，这里固定为0x04，后面64字节为xy分量各32字节。C3为32字节。C2长度与原文一致。
+     * @return 按指定mode DER编码后的密文
      * @throws Exception
      */
     public static byte[] encodeSM2CipherToDER(Mode mode, int curveLength, int digestLength, byte[] cipher)
-        throws Exception {
+            throws Exception {
 
         byte[] c1x = new byte[curveLength];
         byte[] c1y = new byte[curveLength];
@@ -356,8 +368,8 @@ public class SM2Util extends GMBaseUtil {
     /**
      * 解码DER密文
      *
-     * @param derCipher 默认输入按C1C3C2顺序编码的密文
-     * @return 输出按C1C3C2排列的字节数组
+     * @param derCipher 默认输入按C1C3C2顺序DER编码的密文
+     * @return 输出按C1C3C2排列的字节数组，C1为65字节第1字节为压缩标识，这里固定为0x04，后面64字节为xy分量各32字节。C3为32字节。C2长度与原文一致。
      */
     public static byte[] decodeDERSM2Cipher(byte[] derCipher) throws Exception {
         return decodeDERSM2Cipher(Mode.C1C3C2, derCipher);
@@ -365,8 +377,8 @@ public class SM2Util extends GMBaseUtil {
 
     /**
      * @param mode      指定密文结构，旧标准的为C1C2C3，新的[《SM2密码算法使用规范》 GM/T 0009-2012]标准为C1C3C2
-     * @param derCipher
-     * @return 按指定的mode输出相应的解码结果
+     * @param derCipher 根据mode输入C1C2C3或C1C3C2顺序DER编码后的密文
+     * @return 根据mode不同，输出的密文C1C2C3排列顺序不同。C1为65字节第1字节为压缩标识，这里固定为0x04，后面64字节为xy分量各32字节。C3为32字节。C2长度与原文一致。
      * @throws Exception
      */
     public static byte[] decodeDERSM2Cipher(Mode mode, byte[] derCipher) throws Exception {
@@ -406,40 +418,57 @@ public class SM2Util extends GMBaseUtil {
         return cipherText;
     }
 
+    /**
+     * 签名
+     *
+     * @param priKey  私钥
+     * @param srcData 原文
+     * @return DER编码后的签名值
+     * @throws CryptoException
+     */
     public static byte[] sign(BCECPrivateKey priKey, byte[] srcData) throws CryptoException {
         ECPrivateKeyParameters priKeyParameters = BCECUtil.convertPrivateKeyToParameters(priKey);
         return sign(priKeyParameters, null, srcData);
     }
 
     /**
-     * ECC私钥签名
+     * 签名
      * 不指定withId，则默认withId为字节数组:"1234567812345678".getBytes()
      *
-     * @param priKeyParameters ECC私钥
-     * @param srcData          源数据
-     * @return 签名
+     * @param priKeyParameters 私钥
+     * @param srcData          原文
+     * @return DER编码后的签名值
      * @throws CryptoException
      */
     public static byte[] sign(ECPrivateKeyParameters priKeyParameters, byte[] srcData) throws CryptoException {
         return sign(priKeyParameters, null, srcData);
     }
 
+    /**
+     * 私钥签名
+     *
+     * @param priKey  私钥
+     * @param withId  可以为null，若为null，则默认withId为字节数组:"1234567812345678".getBytes()
+     * @param srcData 原文
+     * @return DER编码后的签名值
+     * @throws CryptoException
+     */
     public static byte[] sign(BCECPrivateKey priKey, byte[] withId, byte[] srcData) throws CryptoException {
         ECPrivateKeyParameters priKeyParameters = BCECUtil.convertPrivateKeyToParameters(priKey);
         return sign(priKeyParameters, withId, srcData);
     }
 
     /**
-     * ECC私钥签名
+     * 签名
      *
-     * @param priKeyParameters ECC私钥
+     * @param priKeyParameters 私钥
      * @param withId           可以为null，若为null，则默认withId为字节数组:"1234567812345678".getBytes()
      * @param srcData          源数据
-     * @return 签名
+     * @return DER编码后的签名值
      * @throws CryptoException
      */
     public static byte[] sign(ECPrivateKeyParameters priKeyParameters, byte[] withId, byte[] srcData)
-        throws CryptoException {
+            throws CryptoException {
         SM2Signer signer = new SM2Signer();
         CipherParameters param = null;
         ParametersWithRandom pwr = new ParametersWithRandom(priKeyParameters, new SecureRandom());
@@ -454,10 +483,10 @@ public class SM2Util extends GMBaseUtil {
     }
 
     /**
-     * 将DER编码的SM2签名解析成64字节的纯R+S字节流
+     * 将DER编码的SM2签名解码成64字节的纯R+S字节流
      *
      * @param derSign
-     * @return
+     * @return 64字节数组，前32字节为R，后32字节为S
      */
     public static byte[] decodeDERSM2Sign(byte[] derSign) {
         ASN1Sequence as = DERSequence.getInstance(derSign);
@@ -473,10 +502,10 @@ public class SM2Util extends GMBaseUtil {
     }
 
     /**
-     * 把64字节的纯R+S字节流转换成DER编码字节流
+     * 把64字节的纯R+S字节数组编码成DER编码
      *
-     * @param rawSign
-     * @return
+     * @param rawSign 64字节数组形式的SM2签名值，前32字节为R，后32字节为S
+     * @return DER编码后的SM2签名值
      * @throws IOException
      */
     public static byte[] encodeSM2SignToDER(byte[] rawSign) throws IOException {
@@ -489,36 +518,53 @@ public class SM2Util extends GMBaseUtil {
         return new DERSequence(v).getEncoded(ASN1Encoding.DER);
     }
 
+    /**
+     * 验签
+     *
+     * @param pubKey  公钥
+     * @param srcData 原文
+     * @param sign    DER编码的签名值
+     * @return
+     */
     public static boolean verify(BCECPublicKey pubKey, byte[] srcData, byte[] sign) {
         ECPublicKeyParameters pubKeyParameters = BCECUtil.convertPublicKeyToParameters(pubKey);
         return verify(pubKeyParameters, null, srcData, sign);
     }
 
     /**
-     * ECC公钥验签
+     * 验签
      * 不指定withId，则默认withId为字节数组:"1234567812345678".getBytes()
      *
-     * @param pubKeyParameters ECC公钥
-     * @param srcData          源数据
-     * @param sign             签名
+     * @param pubKeyParameters 公钥
+     * @param srcData          原文
+     * @param sign             DER编码的签名值
      * @return 验签成功返回true，失败返回false
      */
     public static boolean verify(ECPublicKeyParameters pubKeyParameters, byte[] srcData, byte[] sign) {
         return verify(pubKeyParameters, null, srcData, sign);
     }
 
+    /**
+     * 验签
+     *
+     * @param pubKey  公钥
+     * @param withId  可以为null，若为null，则默认withId为字节数组:"1234567812345678".getBytes()
+     * @param srcData 原文
+     * @param sign    DER编码的签名值
+     * @return
+     */
     public static boolean verify(BCECPublicKey pubKey, byte[] withId, byte[] srcData, byte[] sign) {
         ECPublicKeyParameters pubKeyParameters = BCECUtil.convertPublicKeyToParameters(pubKey);
         return verify(pubKeyParameters, withId, srcData, sign);
     }
 
     /**
-     * ECC公钥验签
+     * 验签
      *
-     * @param pubKeyParameters ECC公钥
+     * @param pubKeyParameters 公钥
      * @param withId           可以为null，若为null，则默认withId为字节数组:"1234567812345678".getBytes()
-     * @param srcData          源数据
-     * @param sign             签名
+     * @param srcData          原文
+     * @param sign             DER编码的签名值
      * @return 验签成功返回true，失败返回false
      */
     public static boolean verify(ECPublicKeyParameters pubKeyParameters, byte[] withId, byte[] srcData, byte[] sign) {

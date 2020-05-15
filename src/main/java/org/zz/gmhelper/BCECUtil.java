@@ -68,21 +68,21 @@ public class BCECUtil {
      *
      * @return ECC密钥对
      */
-    public static AsymmetricCipherKeyPair generateKeyPairParameter(ECDomainParameters domainParameters,
-        SecureRandom random) {
+    public static AsymmetricCipherKeyPair generateKeyPairParameter(
+            ECDomainParameters domainParameters, SecureRandom random) {
         ECKeyGenerationParameters keyGenerationParams = new ECKeyGenerationParameters(domainParameters,
-            random);
+                random);
         ECKeyPairGenerator keyGen = new ECKeyPairGenerator();
         keyGen.init(keyGenerationParams);
         return keyGen.generateKeyPair();
     }
 
     public static KeyPair generateKeyPair(ECDomainParameters domainParameters, SecureRandom random)
-        throws NoSuchProviderException, NoSuchAlgorithmException,
-        InvalidAlgorithmParameterException {
+            throws NoSuchProviderException, NoSuchAlgorithmException,
+            InvalidAlgorithmParameterException {
         KeyPairGenerator kpg = KeyPairGenerator.getInstance(ALGO_NAME_EC, BouncyCastleProvider.PROVIDER_NAME);
         ECParameterSpec parameterSpec = new ECParameterSpec(domainParameters.getCurve(), domainParameters.getG(),
-            domainParameters.getN(), domainParameters.getH());
+                domainParameters.getN(), domainParameters.getH());
         kpg.initialize(parameterSpec, random);
         return kpg.generateKeyPair();
     }
@@ -109,24 +109,70 @@ public class BCECUtil {
         return result;
     }
 
-    public static ECPrivateKeyParameters createECPrivateKeyParameters(BigInteger d,
-        ECDomainParameters domainParameters) {
+    /**
+     * @param dHex             十六进制字符串形式的私钥d值，如果是SM2算法，Hex字符串长度应该是64（即32字节）
+     * @param domainParameters EC Domain参数，一般是固定的，如果是SM2算法的可参考{@link SM2Util#DOMAIN_PARAMS}
+     * @return
+     */
+    public static ECPrivateKeyParameters createECPrivateKeyParameters(
+            String dHex, ECDomainParameters domainParameters) {
+        return createECPrivateKeyParameters(ByteUtils.fromHexString(dHex), domainParameters);
+    }
+
+    /**
+     * @param dBytes           字节数组形式的私钥d值，如果是SM2算法，应该是32字节
+     * @param domainParameters EC Domain参数，一般是固定的，如果是SM2算法的可参考{@link SM2Util#DOMAIN_PARAMS}
+     * @return
+     */
+    public static ECPrivateKeyParameters createECPrivateKeyParameters(
+            byte[] dBytes, ECDomainParameters domainParameters) {
+        return createECPrivateKeyParameters(new BigInteger(1, dBytes), domainParameters);
+    }
+
+    /**
+     * @param d                大数形式的私钥d值
+     * @param domainParameters EC Domain参数，一般是固定的，如果是SM2算法的可参考{@link SM2Util#DOMAIN_PARAMS}
+     * @return
+     */
+    public static ECPrivateKeyParameters createECPrivateKeyParameters(
+            BigInteger d, ECDomainParameters domainParameters) {
         return new ECPrivateKeyParameters(d, domainParameters);
     }
 
-    public static ECPublicKeyParameters createECPublicKeyParameters(BigInteger x, BigInteger y,
-        ECCurve curve, ECDomainParameters domainParameters) {
+    /**
+     * @param x                大数形式的公钥x分量
+     * @param y                大数形式的公钥y分量
+     * @param curve            EC曲线参数，一般是固定的，如果是SM2算法的可参考{@link SM2Util#CURVE}
+     * @param domainParameters EC Domain参数，一般是固定的，如果是SM2算法的可参考{@link SM2Util#DOMAIN_PARAMS}
+     * @return
+     */
+    public static ECPublicKeyParameters createECPublicKeyParameters(
+            BigInteger x, BigInteger y, ECCurve curve, ECDomainParameters domainParameters) {
         return createECPublicKeyParameters(x.toByteArray(), y.toByteArray(), curve, domainParameters);
     }
 
-    public static ECPublicKeyParameters createECPublicKeyParameters(String xHex, String yHex,
-        ECCurve curve, ECDomainParameters domainParameters) {
+    /**
+     * @param xHex             十六进制形式的公钥x分量，如果是SM2算法，Hex字符串长度应该是64（即32字节）
+     * @param yHex             十六进制形式的公钥y分量，如果是SM2算法，Hex字符串长度应该是64（即32字节）
+     * @param curve            EC曲线参数，一般是固定的，如果是SM2算法的可参考{@link SM2Util#CURVE}
+     * @param domainParameters EC Domain参数，一般是固定的，如果是SM2算法的可参考{@link SM2Util#DOMAIN_PARAMS}
+     * @return
+     */
+    public static ECPublicKeyParameters createECPublicKeyParameters(
+            String xHex, String yHex, ECCurve curve, ECDomainParameters domainParameters) {
         return createECPublicKeyParameters(ByteUtils.fromHexString(xHex), ByteUtils.fromHexString(yHex),
-            curve, domainParameters);
+                curve, domainParameters);
     }
 
-    public static ECPublicKeyParameters createECPublicKeyParameters(byte[] xBytes, byte[] yBytes,
-        ECCurve curve, ECDomainParameters domainParameters) {
+    /**
+     * @param xBytes           十六进制形式的公钥x分量，如果是SM2算法，应该是32字节
+     * @param yBytes           十六进制形式的公钥y分量，如果是SM2算法，应该是32字节
+     * @param curve            EC曲线参数，一般是固定的，如果是SM2算法的可参考{@link SM2Util#CURVE}
+     * @param domainParameters EC Domain参数，一般是固定的，如果是SM2算法的可参考{@link SM2Util#DOMAIN_PARAMS}
+     * @return
+     */
+    public static ECPublicKeyParameters createECPublicKeyParameters(
+            byte[] xBytes, byte[] yBytes, ECCurve curve, ECDomainParameters domainParameters) {
         final byte uncompressedFlag = 0x04;
         int curveLength = getCurveLength(domainParameters);
         xBytes = fixToCurveLengthBytes(curveLength, xBytes);
@@ -141,19 +187,20 @@ public class BCECUtil {
     public static ECPrivateKeyParameters convertPrivateKeyToParameters(BCECPrivateKey ecPriKey) {
         ECParameterSpec parameterSpec = ecPriKey.getParameters();
         ECDomainParameters domainParameters = new ECDomainParameters(parameterSpec.getCurve(), parameterSpec.getG(),
-            parameterSpec.getN(), parameterSpec.getH());
+                parameterSpec.getN(), parameterSpec.getH());
         return new ECPrivateKeyParameters(ecPriKey.getD(), domainParameters);
     }
 
     public static ECPublicKeyParameters convertPublicKeyToParameters(BCECPublicKey ecPubKey) {
         ECParameterSpec parameterSpec = ecPubKey.getParameters();
         ECDomainParameters domainParameters = new ECDomainParameters(parameterSpec.getCurve(), parameterSpec.getG(),
-            parameterSpec.getN(), parameterSpec.getH());
+                parameterSpec.getN(), parameterSpec.getH());
         return new ECPublicKeyParameters(ecPubKey.getQ(), domainParameters);
     }
 
-    public static BCECPublicKey createPublicKeyFromSubjectPublicKeyInfo(SubjectPublicKeyInfo subPubInfo) throws NoSuchProviderException,
-        NoSuchAlgorithmException, InvalidKeySpecException, IOException {
+    public static BCECPublicKey createPublicKeyFromSubjectPublicKeyInfo(SubjectPublicKeyInfo subPubInfo)
+            throws NoSuchProviderException,
+            NoSuchAlgorithmException, InvalidKeySpecException, IOException {
         return BCECUtil.convertX509ToECPublicKey(subPubInfo.toASN1Primitive().getEncoded(ASN1Encoding.DER));
     }
 
@@ -164,18 +211,18 @@ public class BCECUtil {
      * @param pubKey 可以为空，但是如果为空的话得到的结果OpenSSL可能解析不了
      * @return
      */
-    public static byte[] convertECPrivateKeyToPKCS8(ECPrivateKeyParameters priKey,
-        ECPublicKeyParameters pubKey) {
+    public static byte[] convertECPrivateKeyToPKCS8(
+            ECPrivateKeyParameters priKey, ECPublicKeyParameters pubKey) {
         ECDomainParameters domainParams = priKey.getParameters();
         ECParameterSpec spec = new ECParameterSpec(domainParams.getCurve(), domainParams.getG(),
-            domainParams.getN(), domainParams.getH());
+                domainParams.getN(), domainParams.getH());
         BCECPublicKey publicKey = null;
         if (pubKey != null) {
             publicKey = new BCECPublicKey(ALGO_NAME_EC, pubKey, spec,
-                BouncyCastleProvider.CONFIGURATION);
+                    BouncyCastleProvider.CONFIGURATION);
         }
         BCECPrivateKey privateKey = new BCECPrivateKey(ALGO_NAME_EC, priKey, publicKey,
-            spec, BouncyCastleProvider.CONFIGURATION);
+                spec, BouncyCastleProvider.CONFIGURATION);
         return privateKey.getEncoded();
     }
 
@@ -189,7 +236,7 @@ public class BCECUtil {
      * @throws InvalidKeySpecException
      */
     public static BCECPrivateKey convertPKCS8ToECPrivateKey(byte[] pkcs8Key)
-        throws NoSuchAlgorithmException, NoSuchProviderException, InvalidKeySpecException {
+            throws NoSuchAlgorithmException, NoSuchProviderException, InvalidKeySpecException {
         PKCS8EncodedKeySpec peks = new PKCS8EncodedKeySpec(pkcs8Key);
         KeyFactory kf = KeyFactory.getInstance(ALGO_NAME_EC, BouncyCastleProvider.PROVIDER_NAME);
         return (BCECPrivateKey) kf.generatePrivate(peks);
@@ -228,8 +275,8 @@ public class BCECUtil {
      * @return
      * @throws IOException
      */
-    public static byte[] convertECPrivateKeyToSEC1(ECPrivateKeyParameters priKey,
-        ECPublicKeyParameters pubKey) throws IOException {
+    public static byte[] convertECPrivateKeyToSEC1(
+            ECPrivateKeyParameters priKey, ECPublicKeyParameters pubKey) throws IOException {
         byte[] pkcs8Bytes = convertECPrivateKeyToPKCS8(priKey, pubKey);
         PrivateKeyInfo pki = PrivateKeyInfo.getInstance(pkcs8Bytes);
         ASN1Encodable encodable = pki.parsePrivateKey();
@@ -271,7 +318,7 @@ public class BCECUtil {
      * @throws IOException
      */
     public static BCECPrivateKey convertSEC1ToBCECPrivateKey(byte[] sec1Key)
-        throws NoSuchAlgorithmException, NoSuchProviderException, InvalidKeySpecException, IOException {
+            throws NoSuchAlgorithmException, NoSuchProviderException, InvalidKeySpecException, IOException {
         PKCS8EncodedKeySpec peks = new PKCS8EncodedKeySpec(convertECPrivateKeySEC1ToPKCS8(sec1Key));
         KeyFactory kf = KeyFactory.getInstance(ALGO_NAME_EC, BouncyCastleProvider.PROVIDER_NAME);
         return (BCECPrivateKey) kf.generatePrivate(peks);
@@ -289,7 +336,7 @@ public class BCECUtil {
      * @throws InvalidKeySpecException
      */
     public static ECPrivateKeyParameters convertSEC1ToECPrivateKey(byte[] sec1Key)
-        throws NoSuchAlgorithmException, NoSuchProviderException, InvalidKeySpecException, IOException {
+            throws NoSuchAlgorithmException, NoSuchProviderException, InvalidKeySpecException, IOException {
         BCECPrivateKey privateKey = convertSEC1ToBCECPrivateKey(sec1Key);
         return convertPrivateKeyToParameters(privateKey);
     }
@@ -303,9 +350,9 @@ public class BCECUtil {
     public static byte[] convertECPublicKeyToX509(ECPublicKeyParameters pubKey) {
         ECDomainParameters domainParams = pubKey.getParameters();
         ECParameterSpec spec = new ECParameterSpec(domainParams.getCurve(), domainParams.getG(),
-            domainParams.getN(), domainParams.getH());
+                domainParams.getN(), domainParams.getH());
         BCECPublicKey publicKey = new BCECPublicKey(ALGO_NAME_EC, pubKey, spec,
-            BouncyCastleProvider.CONFIGURATION);
+                BouncyCastleProvider.CONFIGURATION);
         return publicKey.getEncoded();
     }
 
@@ -319,7 +366,7 @@ public class BCECUtil {
      * @throws InvalidKeySpecException
      */
     public static BCECPublicKey convertX509ToECPublicKey(byte[] x509Bytes) throws NoSuchProviderException,
-        NoSuchAlgorithmException, InvalidKeySpecException {
+            NoSuchAlgorithmException, InvalidKeySpecException {
         X509EncodedKeySpec eks = new X509EncodedKeySpec(x509Bytes);
         KeyFactory kf = KeyFactory.getInstance("EC", BouncyCastleProvider.PROVIDER_NAME);
         return (BCECPublicKey) kf.generatePublic(eks);
@@ -390,8 +437,8 @@ public class BCECUtil {
      * @param withCompression
      * @return
      */
-    public static X962Parameters getDomainParametersFromName(java.security.spec.ECParameterSpec ecSpec,
-        boolean withCompression) {
+    public static X962Parameters getDomainParametersFromName(
+            java.security.spec.ECParameterSpec ecSpec, boolean withCompression) {
         X962Parameters params;
 
         if (ecSpec instanceof ECNamedCurveSpec) {
@@ -406,11 +453,11 @@ public class BCECUtil {
             ECCurve curve = EC5Util.convertCurve(ecSpec.getCurve());
 
             X9ECParameters ecP = new X9ECParameters(
-                curve,
-                new X9ECPoint(EC5Util.convertPoint(curve, ecSpec.getGenerator()), withCompression),
-                ecSpec.getOrder(),
-                BigInteger.valueOf(ecSpec.getCofactor()),
-                ecSpec.getCurve().getSeed());
+                    curve,
+                    new X9ECPoint(EC5Util.convertPoint(curve, ecSpec.getGenerator()), withCompression),
+                    ecSpec.getOrder(),
+                    BigInteger.valueOf(ecSpec.getCofactor()),
+                    ecSpec.getCurve().getSeed());
 
             //// 如果是1.62或更低版本的bcprov-jdk15on应该使用以下这段代码，因为高版本的EC5Util.convertPoint没有向下兼容
             /*

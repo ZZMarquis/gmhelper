@@ -5,14 +5,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.zz.gmhelper.SM4Util;
 
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.util.Arrays;
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 
 public class SM4UtilTest extends GMBaseTest {
 
@@ -24,33 +17,33 @@ public class SM4UtilTest extends GMBaseTest {
             byte[] cipherText = null;
             byte[] decryptedData = null;
 
-            cipherText = SM4Util.encrypt_Ecb_NoPadding(key, SRC_DATA_16B);
+            cipherText = SM4Util.encrypt_ECB_NoPadding(key, SRC_DATA_16B);
             System.out.println("SM4 ECB NoPadding encrypt result:\n" + Arrays.toString(cipherText));
-            decryptedData = SM4Util.decrypt_Ecb_NoPadding(key, cipherText);
+            decryptedData = SM4Util.decrypt_ECB_NoPadding(key, cipherText);
             System.out.println("SM4 ECB NoPadding decrypt result:\n" + Arrays.toString(decryptedData));
             if (!Arrays.equals(decryptedData, SRC_DATA_16B)) {
                 Assert.fail();
             }
 
-            cipherText = SM4Util.encrypt_Ecb_Padding(key, SRC_DATA);
+            cipherText = SM4Util.encrypt_ECB_Padding(key, SRC_DATA);
             System.out.println("SM4 ECB Padding encrypt result:\n" + Arrays.toString(cipherText));
-            decryptedData = SM4Util.decrypt_Ecb_Padding(key, cipherText);
+            decryptedData = SM4Util.decrypt_ECB_Padding(key, cipherText);
             System.out.println("SM4 ECB Padding decrypt result:\n" + Arrays.toString(decryptedData));
             if (!Arrays.equals(decryptedData, SRC_DATA)) {
                 Assert.fail();
             }
 
-            cipherText = SM4Util.encrypt_Cbc_Padding(key, iv, SRC_DATA);
+            cipherText = SM4Util.encrypt_CBC_Padding(key, iv, SRC_DATA);
             System.out.println("SM4 CBC Padding encrypt result:\n" + Arrays.toString(cipherText));
-            decryptedData = SM4Util.decrypt_Cbc_Padding(key, iv, cipherText);
+            decryptedData = SM4Util.decrypt_CBC_Padding(key, iv, cipherText);
             System.out.println("SM4 CBC Padding decrypt result:\n" + Arrays.toString(decryptedData));
             if (!Arrays.equals(decryptedData, SRC_DATA)) {
                 Assert.fail();
             }
 
-            cipherText = SM4Util.encrypt_Cbc_NoPadding(key, iv, SRC_DATA_16B);
+            cipherText = SM4Util.encrypt_CBC_NoPadding(key, iv, SRC_DATA_16B);
             System.out.println("SM4 CBC NoPadding encrypt result:\n" + Arrays.toString(cipherText));
-            decryptedData = SM4Util.decrypt_Cbc_NoPadding(key, iv, cipherText);
+            decryptedData = SM4Util.decrypt_CBC_NoPadding(key, iv, cipherText);
             System.out.println("SM4 CBC NoPadding decrypt result:\n" + Arrays.toString(decryptedData));
             if (!Arrays.equals(decryptedData, SRC_DATA_16B)) {
                 Assert.fail();
@@ -72,7 +65,7 @@ public class SM4UtilTest extends GMBaseTest {
         mac = SM4Util.doGMac(key, iv, 16, SRC_DATA_24B);
         System.out.println("GMAC:\n" + ByteUtils.toHexString(mac).toUpperCase());
 
-        byte[] cipher = SM4Util.encrypt_Cbc_NoPadding(key, iv, SRC_DATA_32B);
+        byte[] cipher = SM4Util.encrypt_CBC_NoPadding(key, iv, SRC_DATA_32B);
         byte[] cipherLast16 = Arrays.copyOfRange(cipher, cipher.length - 16, cipher.length);
         mac = SM4Util.doCBCMac(key, iv, null, SRC_DATA_32B);
         if (!Arrays.equals(cipherLast16, mac)) {
@@ -80,7 +73,7 @@ public class SM4UtilTest extends GMBaseTest {
         }
         System.out.println("CBCMAC:\n" + ByteUtils.toHexString(mac).toUpperCase());
 
-        cipher = SM4Util.encrypt_Cbc_Padding(key, iv, SRC_DATA_32B);
+        cipher = SM4Util.encrypt_CBC_Padding(key, iv, SRC_DATA_32B);
         cipherLast16 = Arrays.copyOfRange(cipher, cipher.length - 16, cipher.length);
         mac = SM4Util.doCBCMac(key, iv, SRC_DATA_32B);
         if (!Arrays.equals(cipherLast16, mac)) {
