@@ -3,7 +3,6 @@ package org.zz.gmhelper.cert.test;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
-import org.bouncycastle.asn1.x509.KeyUsage;
 import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
@@ -91,10 +90,7 @@ public class SM2CertUtilTest {
                 SM2X509CertMaker.SIGN_ALGO_SM3WITHSM2).getEncoded();
             SM2X509CertMakerTest.savePriKey(ROOT_PRI_PATH, (BCECPrivateKey) rootKP.getPrivate(),
                 (BCECPublicKey) rootKP.getPublic());
-            X509Certificate rootCACert = rootCertMaker.makeCertificate(true,
-                new KeyUsage(KeyUsage.digitalSignature | KeyUsage.dataEncipherment
-                    | KeyUsage.keyCertSign | KeyUsage.cRLSign),
-                rootCSR);
+            X509Certificate rootCACert = rootCertMaker.makeRootCACert(rootCSR);
             FileUtil.writeFile(ROOT_CERT_PATH, rootCACert.getEncoded());
 
             KeyPair midKP = SM2Util.generateKeyPair();
@@ -105,10 +101,7 @@ public class SM2CertUtilTest {
                 SM2X509CertMaker.SIGN_ALGO_SM3WITHSM2).getEncoded();
             SM2X509CertMakerTest.savePriKey(MID_PRI_PATH, (BCECPrivateKey) midKP.getPrivate(),
                 (BCECPublicKey) midKP.getPublic());
-            X509Certificate midCACert = rootCertMaker.makeCertificate(true,
-                new KeyUsage(KeyUsage.digitalSignature | KeyUsage.dataEncipherment
-                    | KeyUsage.keyCertSign | KeyUsage.cRLSign),
-                midCSR);
+            X509Certificate midCACert = rootCertMaker.makeSubCACert(midCSR);
             FileUtil.writeFile(MID_CERT_PATH, midCACert.getEncoded());
 
             SM2X509CertMaker midCertMaker = new SM2X509CertMaker(midKP, certExpire, midDN, snAllocator);
@@ -120,9 +113,7 @@ public class SM2CertUtilTest {
                 SM2X509CertMaker.SIGN_ALGO_SM3WITHSM2).getEncoded();
             SM2X509CertMakerTest.savePriKey(USER_PRI_PATH, (BCECPrivateKey) userKP.getPrivate(),
                 (BCECPublicKey) userKP.getPublic());
-            X509Certificate userCert = midCertMaker.makeCertificate(false,
-                new KeyUsage(KeyUsage.digitalSignature | KeyUsage.dataEncipherment),
-                userCSR);
+            X509Certificate userCert = midCertMaker.makeSSLEndEntityCert(userCSR);
             FileUtil.writeFile(USER_CERT_PATH, userCert.getEncoded());
 
             //根证书是自签名，所以用自己的公钥验证自己的证书

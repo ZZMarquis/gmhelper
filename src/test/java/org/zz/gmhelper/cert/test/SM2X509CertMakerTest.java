@@ -1,9 +1,16 @@
 package org.zz.gmhelper.cert.test;
 
+import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.Security;
+import java.security.cert.X509Certificate;
+
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
-import org.bouncycastle.asn1.x509.KeyUsage;
 import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
 import org.bouncycastle.crypto.params.ECPublicKeyParameters;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
@@ -20,14 +27,6 @@ import org.zz.gmhelper.cert.SM2PublicKey;
 import org.zz.gmhelper.cert.SM2X509CertMaker;
 import org.zz.gmhelper.cert.exception.InvalidX500NameException;
 import org.zz.gmhelper.test.util.FileUtil;
-
-import java.io.IOException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.Security;
-import java.security.cert.X509Certificate;
 
 public class SM2X509CertMakerTest {
 
@@ -47,8 +46,7 @@ public class SM2X509CertMakerTest {
             savePriKey("target/test.sm2.pri", (BCECPrivateKey) subKP.getPrivate(),
                 (BCECPublicKey) subKP.getPublic());
             SM2X509CertMaker certMaker = buildCertMaker();
-            X509Certificate cert = certMaker.makeCertificate(false,
-                new KeyUsage(KeyUsage.digitalSignature | KeyUsage.dataEncipherment), csr);
+            X509Certificate cert = certMaker.makeSSLEndEntityCert(csr);
             FileUtil.writeFile("target/test.sm2.cer", cert.getEncoded());
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -68,7 +66,8 @@ public class SM2X509CertMakerTest {
         builder.addRDN(BCStyle.C, "CN");
         builder.addRDN(BCStyle.O, "org.zz");
         builder.addRDN(BCStyle.OU, "org.zz");
-        builder.addRDN(BCStyle.CN, "zz");
+        builder.addRDN(BCStyle.CN, "example.org");
+        builder.addRDN(BCStyle.EmailAddress, "abc@example.org");
         return builder.build();
     }
 

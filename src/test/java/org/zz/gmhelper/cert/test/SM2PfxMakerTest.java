@@ -1,8 +1,12 @@
 package org.zz.gmhelper.cert.test;
 
+import java.security.KeyPair;
+import java.security.PublicKey;
+import java.security.Security;
+import java.security.cert.X509Certificate;
+
 import org.bouncycastle.asn1.ASN1Encoding;
 import org.bouncycastle.asn1.x500.X500Name;
-import org.bouncycastle.asn1.x509.KeyUsage;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -18,11 +22,6 @@ import org.zz.gmhelper.cert.SM2PfxMaker;
 import org.zz.gmhelper.cert.SM2PublicKey;
 import org.zz.gmhelper.cert.SM2X509CertMaker;
 import org.zz.gmhelper.test.util.FileUtil;
-
-import java.security.KeyPair;
-import java.security.PublicKey;
-import java.security.Security;
-import java.security.cert.X509Certificate;
 
 public class SM2PfxMakerTest {
     static {
@@ -42,8 +41,7 @@ public class SM2PfxMakerTest {
             byte[] csr = CommonUtil.createCSR(subDN, sm2SubPub, subKP.getPrivate(),
                 SM2X509CertMaker.SIGN_ALGO_SM3WITHSM2).getEncoded();
             SM2X509CertMaker certMaker = SM2X509CertMakerTest.buildCertMaker();
-            X509Certificate cert = certMaker.makeCertificate(false,
-                new KeyUsage(KeyUsage.digitalSignature | KeyUsage.dataEncipherment), csr);
+            X509Certificate cert = certMaker.makeSSLEndEntityCert(csr);
 
             SM2PfxMaker pfxMaker = new SM2PfxMaker();
             PKCS10CertificationRequest request = new PKCS10CertificationRequest(csr);
