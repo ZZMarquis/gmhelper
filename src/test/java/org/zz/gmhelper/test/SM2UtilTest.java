@@ -239,7 +239,7 @@ public class SM2UtilTest extends GMBaseTest {
             byte[] encryptedData = SM2Util.encrypt(Mode.C1C2C3, pubKey, SRC_DATA);
 
             byte[] derCipher = SM2Util.encodeSM2CipherToDER(Mode.C1C2C3, encryptedData);
-            FileUtil.writeFile("derCipher_c1c2c3.dat", derCipher);
+            FileUtil.writeFile("target/derCipher_c1c2c3.dat", derCipher);
 
             byte[] decryptedData = SM2Util.decrypt(Mode.C1C2C3, priKey, SM2Util.decodeDERSM2Cipher(Mode.C1C2C3, derCipher));
             if (!Arrays.equals(decryptedData, SRC_DATA)) {
