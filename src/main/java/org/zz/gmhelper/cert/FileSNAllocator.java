@@ -13,7 +13,7 @@ public class FileSNAllocator implements CertSNAllocator {
         snFilePath = loader.getResource(SN_FILENAME).getPath();
     }
 
-    public synchronized BigInteger incrementAndGet() throws Exception {
+    public synchronized BigInteger nextSerialNumber() throws Exception {
         BigInteger sn = readSN();
         writeSN(sn.add(BigInteger.ONE));
         return sn;
