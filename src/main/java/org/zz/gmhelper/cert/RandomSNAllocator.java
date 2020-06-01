@@ -62,7 +62,7 @@ public class RandomSNAllocator implements CertSNAllocator {
     }
 
     @Override
-    public BigInteger incrementAndGet() {
+    public BigInteger nextSerialNumber() {
         final byte[] rdnBytes = new byte[(bitLen + 7) / 8];
         final int ci = bitLen % 8;
 

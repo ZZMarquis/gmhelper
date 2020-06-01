@@ -13,7 +13,6 @@ import java.security.Signature;
 import java.security.cert.X509Certificate;
 
 import org.bouncycastle.asn1.x500.X500Name;
-import org.bouncycastle.asn1.x509.KeyUsage;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -46,8 +45,7 @@ public class SM2Pkcs12MakerTest {
             byte[] csr = CommonUtil.createCSR(subDN, sm2SubPub, subKP.getPrivate(),
                 SM2X509CertMaker.SIGN_ALGO_SM3WITHSM2).getEncoded();
             SM2X509CertMaker certMaker = SM2X509CertMakerTest.buildCertMaker();
-            X509Certificate cert = certMaker.makeCertificate(false,
-                new KeyUsage(KeyUsage.digitalSignature | KeyUsage.dataEncipherment), csr);
+            X509Certificate cert = certMaker.makeSSLEndEntityCert(csr);
 
             SM2Pkcs12Maker pkcs12Maker = new SM2Pkcs12Maker();
             KeyStore pkcs12 = pkcs12Maker.makePkcs12(subKP.getPrivate(), cert, TEST_P12_PASSWD);
