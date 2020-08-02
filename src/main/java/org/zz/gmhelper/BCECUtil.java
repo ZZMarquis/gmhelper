@@ -32,6 +32,8 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ECNamedCurveSpec;
 import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.bouncycastle.math.ec.ECCurve;
+import org.bouncycastle.math.ec.ECPoint;
+import org.bouncycastle.math.ec.FixedPointCombMultiplier;
 import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
@@ -137,6 +139,18 @@ public class BCECUtil {
     public static ECPrivateKeyParameters createECPrivateKeyParameters(
             BigInteger d, ECDomainParameters domainParameters) {
         return new ECPrivateKeyParameters(d, domainParameters);
+    }
+
+    /**
+     * 根据EC私钥构造EC公钥
+     *
+     * @param priKey ECC私钥参数对象
+     * @return
+     */
+    public static ECPublicKeyParameters buildECPublicKeyByPrivateKey(ECPrivateKeyParameters priKey) {
+        ECDomainParameters domainParameters = priKey.getParameters();
+        ECPoint q = new FixedPointCombMultiplier().multiply(domainParameters.getG(), priKey.getD());
+        return new ECPublicKeyParameters(q, domainParameters);
     }
 
     /**
