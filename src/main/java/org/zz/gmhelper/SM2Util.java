@@ -352,8 +352,9 @@ public class SM2Util extends GMBaseUtil {
         }
 
         ASN1Encodable[] arr = new ASN1Encodable[4];
-        arr[0] = new ASN1Integer(c1x);
-        arr[1] = new ASN1Integer(c1y);
+        // c1x,c1y的第一个bit可能为1，这个时候要确保他们表示的大数一定是正数，所以new BigInteger符号强制设为正。
+        arr[0] = new ASN1Integer(new BigInteger(1, c1x));
+        arr[1] = new ASN1Integer(new BigInteger(1, c1y));
         if (mode == Mode.C1C2C3) {
             arr[2] = new DEROctetString(c2);
             arr[3] = new DEROctetString(c3);
@@ -385,6 +386,9 @@ public class SM2Util extends GMBaseUtil {
         ASN1Sequence as = DERSequence.getInstance(derCipher);
         byte[] c1x = ((ASN1Integer) as.getObjectAt(0)).getValue().toByteArray();
         byte[] c1y = ((ASN1Integer) as.getObjectAt(1)).getValue().toByteArray();
+        // c1x，c1y可能因为大正数的补0规则在第一个有效字节前面插了一个(byte)0，变成33个字节，在这里要修正回32个字节去
+        c1x = fixToCurveLengthBytes(c1x);
+        c1y = fixToCurveLengthBytes(c1y);
         byte[] c3;
         byte[] c2;
         if (mode == Mode.C1C2C3) {

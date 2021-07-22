@@ -230,6 +230,30 @@ public class SM2UtilTest extends GMBaseTest {
     }
 
     @Test
+    public void testEncodeSM2CipherToDERForLoop() {
+        try {
+            for (int i = 0; i < 1000; ++i) {
+                AsymmetricCipherKeyPair keyPair = SM2Util.generateKeyPairParameter();
+                ECPrivateKeyParameters priKey = (ECPrivateKeyParameters) keyPair.getPrivate();
+                ECPublicKeyParameters pubKey = (ECPublicKeyParameters) keyPair.getPublic();
+
+                byte[] encryptedData = SM2Util.encrypt(pubKey, SRC_DATA);
+
+                byte[] derCipher = SM2Util.encodeSM2CipherToDER(encryptedData);
+
+                byte[] decryptedData = SM2Util.decrypt(priKey, SM2Util.decodeDERSM2Cipher(derCipher));
+                if (!Arrays.equals(decryptedData, SRC_DATA)) {
+                    Assert.fail();
+                }
+            }
+            Assert.assertTrue(true);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            Assert.fail();
+        }
+    }
+
+    @Test
     public void testEncodeSM2CipherToDER_C1C2C3() {
         try {
             AsymmetricCipherKeyPair keyPair = SM2Util.generateKeyPairParameter();
