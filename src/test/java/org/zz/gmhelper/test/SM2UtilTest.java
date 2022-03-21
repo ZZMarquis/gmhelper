@@ -31,7 +31,7 @@ public class SM2UtilTest extends GMBaseTest {
                 + ByteUtils.toHexString(priKey.getD().toByteArray()).toUpperCase());
             System.out.println("Pub X Hex:"
                 + ByteUtils.toHexString(pubKey.getQ().getAffineXCoord().getEncoded()).toUpperCase());
-            System.out.println("Pub X Hex:"
+            System.out.println("Pub Y Hex:"
                 + ByteUtils.toHexString(pubKey.getQ().getAffineYCoord().getEncoded()).toUpperCase());
             System.out.println("Pub Point Hex:"
                 + ByteUtils.toHexString(pubKey.getQ().getEncoded(false)).toUpperCase());
@@ -69,7 +69,7 @@ public class SM2UtilTest extends GMBaseTest {
                 + ByteUtils.toHexString(priKey.getD().toByteArray()).toUpperCase());
             System.out.println("Pub X Hex:"
                 + ByteUtils.toHexString(pubKey.getQ().getAffineXCoord().getEncoded()).toUpperCase());
-            System.out.println("Pub X Hex:"
+            System.out.println("Pub Y Hex:"
                 + ByteUtils.toHexString(pubKey.getQ().getAffineYCoord().getEncoded()).toUpperCase());
             System.out.println("Pub Point Hex:"
                 + ByteUtils.toHexString(pubKey.getQ().getEncoded(false)).toUpperCase());
@@ -98,7 +98,7 @@ public class SM2UtilTest extends GMBaseTest {
                 + ByteUtils.toHexString(priKey.getD().toByteArray()).toUpperCase());
             System.out.println("Pub X Hex:"
                 + ByteUtils.toHexString(pubKey.getQ().getAffineXCoord().getEncoded()).toUpperCase());
-            System.out.println("Pub X Hex:"
+            System.out.println("Pub Y Hex:"
                 + ByteUtils.toHexString(pubKey.getQ().getAffineYCoord().getEncoded()).toUpperCase());
             System.out.println("Pub Point Hex:"
                 + ByteUtils.toHexString(pubKey.getQ().getEncoded(false)).toUpperCase());
@@ -195,7 +195,7 @@ public class SM2UtilTest extends GMBaseTest {
                 + ByteUtils.toHexString(priKey.getD().toByteArray()).toUpperCase());
             System.out.println("Pub X Hex:"
                 + ByteUtils.toHexString(pubKey.getQ().getAffineXCoord().getEncoded()).toUpperCase());
-            System.out.println("Pub X Hex:"
+            System.out.println("Pub Y Hex:"
                 + ByteUtils.toHexString(pubKey.getQ().getAffineYCoord().getEncoded()).toUpperCase());
             System.out.println("Pub Point Hex:"
                 + ByteUtils.toHexString(pubKey.getQ().getEncoded(false)).toUpperCase());
