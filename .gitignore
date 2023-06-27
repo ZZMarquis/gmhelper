@@ -1,6 +1,88 @@
-/target/
-/.settings/
-/.idea/
+### gradle ###
+.gradle
+/build/
+!gradle/wrapper/gradle-wrapper.jar
 
-/.classpath
-/.project
+### STS ###
+.settings/
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+bin/
+
+### IntelliJ IDEA ###
+.idea
+!.idea/copyright/*.xml
+*.iws
+*.iml
+*.ipr
+*.lock
+rebel.xml
+
+### NetBeans ###
+nbproject/private/
+build/
+nbbuild/
+nbdist/
+.nb-gradle/
+
+### maven ###
+target/
+*.war
+*.ear
+*.zip
+*.tar
+*.tar.gz
+!**/src/main/**
+!**/src/test/**
+!/.mvn/wrapper/maven-wrapper.jar
+
+# flattened pom
+.flattened-pom.xml
+
+### logs ####
+/logs/
+*.log
+
+### temp ignore ###
+*.cache
+*.diff
+*.patch
+*.tmp
+*.java~
+*.properties~
+*.xml~
+
+### system ignore ###
+.DS_Store
+Thumbs.db
+Servers
+.metadata
+upload
+gen_code
+
+# BlueJ files
+*.ctxt
+
+### node ###
+node_modules
+!yarn.lock
+!package.lock
+
+######################################################################
+# Others
+*.xml.versionsBackup
+*.xml.releaseBackup
+pom.xml.next
+release.properties
+.metadata/
+settings-ossrh.xml
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
