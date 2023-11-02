@@ -120,7 +120,7 @@ public class SM2X509CertMaker {
     }
 
     /**
-     * @param isCA     是否是颁发给CA的证书
+     * @param certLevel 证书级别 {@link CertLevel}
      * @param keyUsage 证书用途
      * @param csr      CSR
      * @return
