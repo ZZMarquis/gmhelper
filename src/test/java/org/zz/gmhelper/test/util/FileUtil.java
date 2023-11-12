@@ -5,17 +5,29 @@ import java.io.RandomAccessFile;
 
 public class FileUtil {
     public static void writeFile(String filePath, byte[] data) throws IOException {
-        try (RandomAccessFile raf = new RandomAccessFile(filePath, "rw")) {
+        RandomAccessFile raf = null;
+        try {
+            raf = new RandomAccessFile(filePath, "rw");
             raf.write(data);
+        } finally {
+            if (raf != null) {
+                raf.close();
+            }
         }
     }
 
     public static byte[] readFile(String filePath) throws IOException {
+        RandomAccessFile raf = null;
         byte[] data;
-        try (RandomAccessFile raf = new RandomAccessFile(filePath, "r")) {
+        try {
+            raf = new RandomAccessFile(filePath, "r");
             data = new byte[(int) raf.length()];
             raf.read(data);
             return data;
+        } finally {
+            if (raf != null) {
+                raf.close();
+            }
         }
     }
 }
